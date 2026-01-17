@@ -8,11 +8,10 @@ import com.bytedance.sdk.openadsdk.TTAdManager;
 import com.bytedance.sdk.openadsdk.TTAdNative;
 import java.util.Objects;
 
-import com.bytedance.sdk.openadsdk.TTAdSdk;
 import com.bytedance.sdk.openadsdk.TTFullScreenVideoAd;
 import com.bytedance.sdk.openadsdk.TTNativeExpressAd;
 import com.bytedance.sdk.openadsdk.TTRewardVideoAd;
-import com.bytedance.sdk.openadsdk.TTSplashAd;
+import com.bytedance.sdk.openadsdk.CSJSplashAd;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactContext;
 
@@ -68,7 +67,7 @@ public class DyADCore {
   public static TTFullScreenVideoAd fullAd;
   public static TTNativeExpressAd feedAd;
   public static TTNativeExpressAd drawfeedAd;
-  public static TTSplashAd splashAd;
+  public static CSJSplashAd splashAd;
   public static ReactContext reactContext;
 
   public static void initSdk(Context context, String appId, Boolean debug) {
