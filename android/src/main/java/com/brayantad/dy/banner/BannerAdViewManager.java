@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.brayantad.dy.banner.view.BannerAdView;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
@@ -13,7 +14,6 @@ import java.util.Map;
 
 public class BannerAdViewManager extends ViewGroupManager<BannerAdView> {
   public static final String TAG = "BannerAdViewManager";
-  private ReactContext mContext;
 
   @NonNull
   @Override

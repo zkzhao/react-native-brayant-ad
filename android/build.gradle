@@ -84,10 +84,16 @@ repositories {
 dependencies {
     implementation 'com.pangle.cn:ads-sdk-pro:7.3.0.8'
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
-    // react-native is provided by the host React Native project
-    // When this library is used in a RN project, the host project
-    // automatically includes the correct version of react-native
-    
+
+    // React Native dependencies (compileOnly for library usage)
+    // Using the version from React Native 0.74.1
+    compileOnly "com.facebook.react:react-android:0.74.1"
+
+    // AndroidX dependencies
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.annotation:annotation:1.7.0'
+    implementation 'androidx.core:core:1.12.0'
+
     implementation "com.github.bumptech.glide:glide:4.11.0"
 }
 

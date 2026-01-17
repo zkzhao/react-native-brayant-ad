@@ -15,7 +15,7 @@ import androidx.annotation.NonNull;
 import com.brayantad.R;
 import com.bytedance.sdk.openadsdk.FilterWord;
 import com.bytedance.sdk.openadsdk.TTDislikeDialogAbstract;
-import com.bytedance.sdk.openadsdk.dislike.TTDislikeListView;
+import com.bytedance.sdk.openadsdk.TTDislikeListView;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -157,13 +157,7 @@ public class BannerAdView extends RelativeLayout {
         @Override
         public void onAdShow(View view, int type) {
           Log.d(TAG, "Banner onAdShow");
-          onAdShow();
-        }
-
-        @Override
-        public void onAdDismiss() {
-          Log.d(TAG, "Banner onAdDismiss");
-          onAdDismiss();
+          BannerAdView.this.onAdShow();
         }
 
         @Override
