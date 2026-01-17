@@ -15,7 +15,7 @@ npm install react-native-brayant-ad
 
 在RN项目的 Project级别的 build.gradle 中添加如下配置 （android/build.gradle）
 
-```
+```groovy
 allprojects {
   repositories {
     google()
@@ -25,6 +25,20 @@ allprojects {
       url 'https://artifact.bytedance.com/repository/pangle'
     }
   }
+}
+```
+
+### Android 完整集成配置
+
+由于本库底层使用穿山甲（Pangle）SDK，需要在 Android 项目中添加以下配置才能正常使用。
+
+#### 添加 Pangle SDK 依赖
+
+在你的 **android/build.gradle** 的 `dependencies` 中添加：
+
+```groovy
+dependencies {
+    implementation 'com.pangle.cn:ads-sdk-pro:7.3.0.8'
 }
 ```
 
