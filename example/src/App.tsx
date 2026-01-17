@@ -7,10 +7,12 @@ import {
   dyLoadSplashAd,
   startFullScreenVideo,
   FeedAdView,
+  BannerAdView,
 } from 'react-native-brayant-ad';
 
 export default function App() {
   const [showFeedView, setShowFeedView] = useState(false);
+  const [showBannerView, setShowBannerView] = useState(false);
   useEffect(() => {
     init({
       appid: '5555235',
@@ -19,6 +21,7 @@ export default function App() {
       .then((res) => {
         console.log(res);
         setShowFeedView(true);
+        setShowBannerView(true);
         requestPermission();
       })
       .catch((e) => {
@@ -54,6 +57,30 @@ export default function App() {
   };
   return (
     <View style={styles.container}>
+      <BannerAdView
+        codeid={'958886397'}
+        adWidth={320}
+        adHeight={50}
+        visible={showBannerView}
+        onAdRenderSuccess={(data: any) => {
+          console.log('Banner 广告渲染成功！', data);
+        }}
+        onAdError={(err: any) => {
+          console.log('Banner 广告加载失败！', err);
+        }}
+        onAdDismiss={(data: any) => {
+          console.log('Banner 广告关闭！', data);
+        }}
+        onAdClick={(val: any) => {
+          console.log('Banner 广告被用户点击！', val);
+        }}
+        onAdShow={(val: any) => {
+          console.log('Banner 广告展示', val);
+        }}
+        onAdDislike={(val: any) => {
+          console.log('Banner 用户不感兴趣', val);
+        }}
+      />
       {/*<FeedAdView*/}
       {/*  codeid={'957782005'}*/}
       {/*  adWidth={400}*/}

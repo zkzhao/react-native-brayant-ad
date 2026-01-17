@@ -4,6 +4,7 @@ import startRewardVideo from './dy/api/RewardVideo';
 import { dyLoadSplashAd } from './dy/api/SplashAd';
 import { DrawFeedView, loadDrawFeedAd } from './dy/component/DrawFeedAd';
 import FeedAdView from './dy/component/FeedAd';
+import BannerAdView from './dy/component/BannerAd';
 
 import startFullScreenVideo from './dy/api/FullScreenVideo';
 const LINKING_ERROR =
@@ -36,4 +37,5 @@ export {
   dyLoadSplashAd,
   DrawFeedView,
   FeedAdView,
+  BannerAdView,
 };

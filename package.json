@@ -80,10 +80,6 @@
     "react": "*",
     "react-native": "*"
   },
-  "workspaces": [
-    "example"
-  ],
-  "packageManager": "yarn@3.6.1",
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
@@ -156,5 +152,9 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "@react-native/gradle-plugin": "^0.83.1",
+    "hermes-engine": "^0.11.0"
   }
 }

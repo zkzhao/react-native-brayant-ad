@@ -2,6 +2,7 @@ package com.brayantad;
 
 import androidx.annotation.NonNull;
 
+import com.brayantad.dy.banner.BannerAdViewManager;
 import com.brayantad.dy.drawFeed.DrawFeedViewManager;
 import com.brayantad.dy.drawFeed.DrawFeedViewModule;
 import com.brayantad.dy.feedAd.FeedAdViewManager;
@@ -36,8 +37,9 @@ public class BrayantAdPackage implements ReactPackage {
   public List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactContext) {
     return Arrays.<ViewManager>asList(
       new DrawFeedViewManager(),
-      new FeedAdViewManager()
-
+      new FeedAdViewManager(),
+      new BannerAdViewManager()
+ 
     );
 //    return Collections.emptyList();
   }

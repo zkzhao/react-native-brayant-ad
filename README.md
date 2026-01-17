@@ -3,15 +3,18 @@
 接入穿山甲SDK
 
 ## 后期代办
+
 接入GeoMoreSdk
 
 ## 安装
 
 ```sh
+
 npm install react-native-brayant-ad
 ```
 
 在RN项目的 Project级别的 build.gradle 中添加如下配置 （android/build.gradle）
+
 ```
 allprojects {
   repositories {
@@ -26,39 +29,44 @@ allprojects {
 ```
 
 ## 必要配置
+
 在项目入口文件中初始化init, 如果不是全局初始化的就需要在每次调用的时候传入
+
 ```js
 import { init } from 'react-native-brayant-ad';
 
 useEfect(() => {
   init({
-    appid: "xxxx",
-    app: "app名称",
+    appid: 'xxxx',
+    app: 'app名称',
     amount: 1000,
-    reward: "金币",
-    debug: true
-  }).then((res) => {})
-})
-
+    reward: '金币',
+    debug: true,
+  }).then((res) => {});
+});
 ```
+
 ### init 方法配置
 
-| 参数 | 说明                | 类型                             | 默认值      | 是否必填 |
-| --- |-------------------|--------------------------------|----------|------|
-| appid | 穿山甲中创建应用的appid    | string                         | -        | 是    |
-| app | app名称             | string                         | 穿山甲媒体APP | 否    |
-| uid | 有些uid和穿山甲商务有合作的需要 | string              | -        |   否   |
-| amount | 奖励数量              | number | 1000     |   否   |
-| reward | 奖励名称              | string                         | 金币       |   否   |
-| debug | 是否是开发者模式          | boolean                        | false    |   否   |
+| 参数   | 说明                            | 类型    | 默认值        | 是否必填 |
+| ------ | ------------------------------- | ------- | ------------- | -------- |
+| appid  | 穿山甲中创建应用的appid         | string  | -             | 是       |
+| app    | app名称                         | string  | 穿山甲媒体APP | 否       |
+| uid    | 有些uid和穿山甲商务有合作的需要 | string  | -             | 否       |
+| amount | 奖励数量                        | number  | 1000          | 否       |
+| reward | 奖励名称                        | string  | 金币          | 否       |
+| debug  | 是否是开发者模式                | boolean | false         | 否       |
 
 init 成功会返回一个promise
 
 # 1. 开屏广告
+
 ## API
+
 ### dyLoadSplashAd
 
 #### 开屏广告事件类型
+
 ```ts
 interface AD_EVENT_TYPE {
   onAdError: string; // 广告加载失败监听
@@ -69,18 +77,17 @@ interface AD_EVENT_TYPE {
 }
 
 EmuAnim = 'default' | 'none' | 'catalyst' | 'slide' | 'fade';
-
 ```
 
-
-| 参数 | 说明     | 类型                             | 默认值      | 是否必填 |
-| --- |--------|--------------------------------|----------|------|
-| codeid | 广告位id  | string                         | -        | 是    |
-| anim | 广告进入方式 | EmuAnim                         | default | 否    |
+| 参数   | 说明         | 类型    | 默认值  | 是否必填 |
+| ------ | ------------ | ------- | ------- | -------- |
+| codeid | 广告位id     | string  | -       | 是       |
+| anim   | 广告进入方式 | EmuAnim | default | 否       |
 
 ## 如何使用
 
 > 这边案列默认全部init初始化后
+
 ```tsx
 import { dyLoadSplashAd } from 'react-native-brayant-ad';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
@@ -126,20 +133,27 @@ const ScrenPage = () => {
 ```
 
 # 2. 激励视频
+
 ## API
+
 ### requestPermission
+
 > 主动看激励视频时，才检查这个权限
 
-无参数 ``requestPermission()``
+无参数 `requestPermission()`
 
 ### startRewardVideo 方法参数
+
 > 开始看激励视频
+
 ## API
-| 参数 | 说明     | 类型                             | 默认值      | 是否必填 |
-| --- |--------|--------------------------------|----------|------|
-| codeid | 广告位id  | string                         | -        | 是    |
+
+| 参数   | 说明     | 类型   | 默认值 | 是否必填 |
+| ------ | -------- | ------ | ------ | -------- |
+| codeid | 广告位id | string | -      | 是       |
 
 #### 激励视频事件类型
+
 ```ts
 export enum AD_EVENT_TYPE {
   onAdError = 'onAdError', // 广告加载失败监听
@@ -147,11 +161,12 @@ export enum AD_EVENT_TYPE {
   onAdClick = 'onAdClick', // 广告被点击监听
   onAdClose = 'onAdClose', // 广告关闭监听
 }
-
 ```
+
 ## 如何使用
 
 > 这边案列默认全部init初始化后
+
 ```tsx
 import { requestPermission, startRewardVideo } from 'react-native-brayant-ad';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
@@ -195,16 +210,20 @@ const RewardVideoPage = () => {
 }
 
 ```
+
 # 3. 全屏视频广告
+
 ## api
+
 ### startFullScreenVideo 方法参数
 
-| 参数          | 说明    | 类型            | 默认值      | 是否必填 |
-|-------------|-------|---------------|----------|------|
-| codeid      | 广告位id | string        | -        | 是    |
-| orientation | 竖屏横屏 | 'HORIZONTAL'  \| 'VERTICAL' | VERTICAL    | 否                         | -        | 是    |
+| 参数        | 说明     | 类型                       | 默认值   | 是否必填 |
+| ----------- | -------- | -------------------------- | -------- | -------- | --- | --- |
+| codeid      | 广告位id | string                     | -        | 是       |
+| orientation | 竖屏横屏 | 'HORIZONTAL' \| 'VERTICAL' | VERTICAL | 否       | -   | 是  |
 
 ## 使用
+
 ```tsx
 import { requestPermission, startRewardVideo } from 'react-native-brayant-ad';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
@@ -260,27 +279,33 @@ const RewardVideoPage = () => {
 ```
 
 # 4. Draw广告
+
 ## api
+
 ### loadDrawFeedAd 方法参数
 
-| 参数          | 说明    | 类型      | 默认值 | 是否必填 |
-|-------------|-------|---------|-----|------|
-| codeid      | 广告位id | string  | -   | 是    |
-| appid | 应用id  | string  | -   | 是                         | -        | 是    |
+| 参数   | 说明     | 类型   | 默认值 | 是否必填 |
+| ------ | -------- | ------ | ------ | -------- | --- | --- |
+| codeid | 广告位id | string | -      | 是       |
+| appid  | 应用id   | string | -      | 是       | -   | 是  |
 
 ## 组件
+
 ### DrawFeedView
-| 参数          | 说明        | 类型     | 默认值 | 是否必填 |
-|-------------|-----------|--------|-----|------|
-| codeid      | 广告位id     | string | -   | 是    |
-| appid | 应用id      | string | -   | 是    |
-| visible      | 是否显示组件中广告 | boolean | -   | 否    |
-| appid | 应用id      | string | -   | 是    |
-| style      | 组件样式      | ViewStyle | -   | 否    |
-| onAdError | 广告错误事件    | Function | -   | 否    |
-| onAdShow      | 显示广告事件    | Function | -   | 否    |
-| onAdClick | 点击广告事件    | Function | -   | 否    |
+
+| 参数      | 说明               | 类型      | 默认值 | 是否必填 |
+| --------- | ------------------ | --------- | ------ | -------- |
+| codeid    | 广告位id           | string    | -      | 是       |
+| appid     | 应用id             | string    | -      | 是       |
+| visible   | 是否显示组件中广告 | boolean   | -      | 否       |
+| appid     | 应用id             | string    | -      | 是       |
+| style     | 组件样式           | ViewStyle | -      | 否       |
+| onAdError | 广告错误事件       | Function  | -      | 否       |
+| onAdShow  | 显示广告事件       | Function  | -      | 否       |
+| onAdClick | 点击广告事件       | Function  | -      | 否       |
+
 ## 使用
+
 ```tsx
 import { loadDrawFeedAd, DrawFeedView } from 'react-native-brayant-ad';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
@@ -315,21 +340,96 @@ const RewardVideoPage = () => {
 }
 ```
 
-# 5. 信息流广告
+# 5. Banner广告
+
 ## 组件
-### FeedAdView
-| 参数          | 说明        | 类型        | 默认值 | 是否必填 |
-|-------------|-----------|-----------|-----|------|
-| codeid      | 广告位id     | string    | -   | 是    |
-| adWidth | 广告宽度      | number    | 375 | 否    |
-| visible      | 是否显示组件中广告 | boolean   | -   | 否    |
-| style      | 组件样式      | ViewStyle | -   | 否    |
-| onAdLayout | 广告加载成功事件  | Function    | -   | 否    |
-| onAdClose | 广告关闭事件    | Function  | -   | 否    |
-| onAdClick | 广告被用户点击事件    | Function  | -   | 否    |
-| onAdError | 广告加载失败事件    | Function  | -   | 否    |
+
+### BannerAdView
+
+| 参数              | 说明               | 类型      | 默认值 | 是否必填 |
+| ----------------- | ------------------ | --------- | ------ | -------- |
+| codeid            | 广告位id           | string    | -      | 是       |
+| adWidth           | 广告宽度(dp)       | number    | 320    | 否       |
+| adHeight          | 广告高度(dp)       | number    | 50     | 否       |
+| visible           | 是否显示组件中广告 | boolean   | -      | 否       |
+| style             | 组件样式           | ViewStyle | -      | 否       |
+| onAdRenderSuccess | 广告渲染成功事件   | Function  | -      | 否       |
+| onAdError         | 广告加载失败事件   | Function  | -      | 否       |
+| onAdDismiss       | 广告关闭事件       | Function  | -      | 否       |
+| onAdClick         | 广告被用户点击事件 | Function  | -      | 否       |
+| onAdShow          | 广告展示事件       | Function  | -      | 否       |
+| onAdDislike       | 用户不感兴趣事件   | Function  | -      | 否       |
+
+> 注意：Banner广告目前仅支持Android平台
 
 ## 使用
+
+```tsx
+import { BannerAdView } from 'react-native-brayant-ad';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+
+const BannerAdPage = () => {
+  const [showBannerView, setShowBannerView] = useState(false);
+
+  useEffect(() => {
+    init({
+      appid: '****',
+      app: '设备信息',
+    }).then((res) => {
+      setShowBannerView(true);
+    });
+  }, []);
+
+  return (
+    <View>
+      <BannerAdView
+        codeid={'****'}
+        adWidth={320}
+        adHeight={50}
+        visible={showBannerView}
+        onAdRenderSuccess={(data: any) => {
+          console.log('Banner 广告渲染成功！', data);
+        }}
+        onAdError={(err: any) => {
+          console.log('Banner 广告加载失败！', err);
+        }}
+        onAdDismiss={(data: any) => {
+          console.log('Banner 广告关闭！', data);
+        }}
+        onAdClick={(val: any) => {
+          console.log('Banner 广告被用户点击！', val);
+        }}
+        onAdShow={(val: any) => {
+          console.log('Banner 广告展示', val);
+        }}
+        onAdDislike={(val: any) => {
+          console.log('Banner 用户不感兴趣', val);
+        }}
+      />
+    </View>
+  );
+};
+```
+
+# 6. 信息流广告
+
+## 组件
+
+### FeedAdView
+
+| 参数       | 说明               | 类型      | 默认值 | 是否必填 |
+| ---------- | ------------------ | --------- | ------ | -------- |
+| codeid     | 广告位id           | string    | -      | 是       |
+| adWidth    | 广告宽度           | number    | 375    | 否       |
+| visible    | 是否显示组件中广告 | boolean   | -      | 否       |
+| style      | 组件样式           | ViewStyle | -      | 否       |
+| onAdLayout | 广告加载成功事件   | Function  | -      | 否       |
+| onAdClose  | 广告关闭事件       | Function  | -      | 否       |
+| onAdClick  | 广告被用户点击事件 | Function  | -      | 否       |
+| onAdError  | 广告加载失败事件   | Function  | -      | 否       |
+
+## 使用
+
 ```tsx
 import { FeedAdView } from 'react-native-brayant-ad';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
@@ -363,6 +463,7 @@ const RewardVideoPage = () => {
 
 }
 ```
+
 ## License
 
 MIT
