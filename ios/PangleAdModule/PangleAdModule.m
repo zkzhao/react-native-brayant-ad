@@ -34,6 +34,14 @@ NSString *const PangleExpressNativeAdRenderSuccess =
 NSString *const PangleExpressNativeAdClicked = @"PangleExpressNativeAdClicked";
 NSString *const PangleExpressNativeAdClosed = @"PangleExpressNativeAdClosed";
 
+NSString *const PangleFeedAdLoaded = @"PangleFeedAdLoaded";
+NSString *const PangleFeedAdLoadFail = @"PangleFeedAdLoadFail";
+NSString *const PangleFeedAdRenderSuccess = @"PangleFeedAdRenderSuccess";
+NSString *const PangleFeedAdClicked = @"PangleFeedAdClicked";
+NSString *const PangleFeedAdClosed = @"PangleFeedAdClosed";
+NSString *const PangleFeedAdError = @"PangleFeedAdError";
+NSString *const PangleFeedAdLayout = @"PangleFeedAdLayout";
+
 void Zhiya_notifyAdReady(void);
 void Zhiya_notifyAdSkipped(void);
 void Zhiya_notifyAdClosed(void);
@@ -145,6 +153,14 @@ RCT_EXPORT_METHOD(flushPendingAdClosedEvent) {
     PangleExpressNativeAdRenderSuccess,
     PangleExpressNativeAdClicked,
     PangleExpressNativeAdClosed,
+    PangleFeedAdLoaded,
+    PangleFeedAdLoadFail,
+    PangleFeedAdRenderSuccess,
+    PangleFeedAdClicked,
+    PangleFeedAdClosed,
+    PangleFeedAdError,
+    PangleFeedAdLayout,
+  ];
   ];
 }
 

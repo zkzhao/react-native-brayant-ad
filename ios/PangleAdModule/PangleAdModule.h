@@ -28,6 +28,14 @@ extern NSString * const PangleExpressNativeAdRenderSuccess;
 extern NSString * const PangleExpressNativeAdClicked;
 extern NSString * const PangleExpressNativeAdClosed;
 
+extern NSString * const PangleFeedAdLoaded;
+extern NSString * const PangleFeedAdLoadFail;
+extern NSString * const PangleFeedAdRenderSuccess;
+extern NSString * const PangleFeedAdClicked;
+extern NSString * const PangleFeedAdClosed;
+extern NSString * const PangleFeedAdError;
+extern NSString * const PangleFeedAdLayout;
+
 @interface PangleAdModule : RCTEventEmitter
 
 + (instancetype)sharedInstance;
