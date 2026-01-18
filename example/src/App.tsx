@@ -15,7 +15,7 @@ export default function App() {
   const [showBannerView, setShowBannerView] = useState(false);
   useEffect(() => {
     init({
-      appid: '5555235',
+      appid: '****',
       app: '设备信息',
     })
       .then((res) => {
@@ -31,7 +31,7 @@ export default function App() {
   // 开屏广告
   const onOpenScren = () => {
     const splashAd = dyLoadSplashAd({
-      codeid: '889356851',
+      codeid: '****',
       anim: 'default',
     });
 
@@ -58,7 +58,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <BannerAdView
-        codeid={'958886397'}
+        codeid={'****'}
         adWidth={320}
         adHeight={50}
         visible={showBannerView}
@@ -82,7 +82,7 @@ export default function App() {
         }}
       />
       {/*<FeedAdView*/}
-      {/*  codeid={'957782005'}*/}
+      {/*  codeid={'****'}*/}
       {/*  adWidth={400}*/}
       {/*  visible={showFeedView}*/}
       {/*  onAdLayout={(data: any) => {*/}
@@ -120,7 +120,7 @@ export default function App() {
         }}
         onPress={() => {
           let fullVideo = startFullScreenVideo({
-            codeid: '957781965',
+            codeid: '****',
           });
           console.log('FullVideoAd rs:', fullVideo);
           fullVideo.result?.then((val: any) => {
@@ -156,7 +156,7 @@ export default function App() {
         }}
         onPress={() => {
           const rewardVideo = startRewardVideo({
-            codeid: '956956876',
+            codeid: '****',
           });
 
           rewardVideo.result.then((val: any) => {

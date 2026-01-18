@@ -10,7 +10,7 @@
 
 ```sh
 
-npm install react-native-brayant-ad
+npm install @24jieqi/react-native-brayant-ad
 ```
 
 在RN项目的 Project级别的 build.gradle 中添加如下配置 （android/build.gradle）
@@ -47,9 +47,9 @@ dependencies {
 在项目入口文件中初始化init, 如果不是全局初始化的就需要在每次调用的时候传入
 
 ```js
-import { init } from 'react-native-brayant-ad';
+import { init } from '@24jieqi/react-native-brayant-ad';
 
-useEfect(() => {
+useEffect(() => {
   init({
     appid: 'xxxx',
     app: 'app名称',
@@ -103,13 +103,13 @@ EmuAnim = 'default' | 'none' | 'catalyst' | 'slide' | 'fade';
 > 这边案列默认全部init初始化后
 
 ```tsx
-import { dyLoadSplashAd } from 'react-native-brayant-ad';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { dyLoadSplashAd } from '@24jieqi/react-native-brayant-ad';
+import { Text, TouchableOpacity } from 'react-native';
 
 const ScrenPage = () => {
   const onOpenScren = () => {
     const splashAd = dyLoadSplashAd({
-      codeid: '889272631',
+      codeid: '****',
       anim: 'default',
     });
 
@@ -134,16 +134,12 @@ const ScrenPage = () => {
     });
   };
 
-  render(){
-    return (
-      <TouchableOpacity onPress={onOpenScren}>
-        <Text style={{ textAlign: 'center' }}> 开屏</Text>
-      </TouchableOpacity>
-    )
-  }
-
-}
-
+  return (
+    <TouchableOpacity onPress={onOpenScren}>
+      <Text style={{ textAlign: 'center' }}> 开屏</Text>
+    </TouchableOpacity>
+  );
+};
 ```
 
 # 2. 激励视频
@@ -182,14 +178,16 @@ export enum AD_EVENT_TYPE {
 > 这边案列默认全部init初始化后
 
 ```tsx
-import { requestPermission, startRewardVideo } from 'react-native-brayant-ad';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import {
+  requestPermission,
+  startRewardVideo,
+} from '@24jieqi/react-native-brayant-ad';
+import { Text, TouchableOpacity } from 'react-native';
 
 const RewardVideoPage = () => {
-
   const onStartRewardVideo = () => {
     const rewardVideo = startRewardVideo({
-      codeid: '956956876',
+      codeid: '****',
     });
 
     rewardVideo.result.then((val: any) => {
@@ -213,16 +211,12 @@ const RewardVideoPage = () => {
     });
   };
 
-  render(){
-    return (
-      <TouchableOpacity onPress={onOpenScren}>
-        <Text style={{ textAlign: 'center' }}> 开屏</Text>
-      </TouchableOpacity>
-    )
-  }
-
-}
-
+  return (
+    <TouchableOpacity onPress={onStartRewardVideo}>
+      <Text style={{ textAlign: 'center' }}> 激励视频</Text>
+    </TouchableOpacity>
+  );
+};
 ```
 
 # 3. 全屏视频广告
@@ -239,57 +233,58 @@ const RewardVideoPage = () => {
 ## 使用
 
 ```tsx
-import { requestPermission, startRewardVideo } from 'react-native-brayant-ad';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import {
+  requestPermission,
+  startFullScreenVideo,
+} from '@24jieqi/react-native-brayant-ad';
+import { useEffect } from 'react';
+import { Text, TouchableOpacity } from 'react-native';
 
 const RewardVideoPage = () => {
   useEffect(() => {
     // step 1: 获取权限
-    requestPermission()
+    requestPermission();
   }, []);
 
-  render() {
-    return (
-      <TouchableOpacity
-        style={{
-          marginVertical: 20,
-          paddingHorizontal: 30,
-          paddingVertical: 15,
-          backgroundColor: '#F96',
-          borderRadius: 50,
-        }}
-        onPress={() => {
-          let fullVideo = startFullScreenVideo({
-            codeid: '957781965',
-          });
-          console.log('FullVideoAd rs:', fullVideo);
-          fullVideo.result?.then((val: any) => {
-            console.log('FullVideoAd rs then val', val);
-          });
+  return (
+    <TouchableOpacity
+      style={{
+        marginVertical: 20,
+        paddingHorizontal: 30,
+        paddingVertical: 15,
+        backgroundColor: '#F96',
+        borderRadius: 50,
+      }}
+      onPress={() => {
+        let fullVideo = startFullScreenVideo({
+          codeid: '****',
+        });
+        console.log('FullVideoAd rs:', fullVideo);
+        fullVideo.result?.then((val: any) => {
+          console.log('FullVideoAd rs then val', val);
+        });
 
-          fullVideo.subscribe('onAdLoaded' as any, (event) => {
-            console.log('广告加载成功监听', event);
-          });
+        fullVideo.subscribe('onAdLoaded' as any, (event) => {
+          console.log('广告加载成功监听', event);
+        });
 
-          fullVideo.subscribe('onAdError' as any, (event) => {
-            console.log('广告加载失败监听', event);
-          });
+        fullVideo.subscribe('onAdError' as any, (event) => {
+          console.log('广告加载失败监听', event);
+        });
 
-          fullVideo.subscribe('onAdClose' as any, (event) => {
-            console.log('广告被关闭监听', event);
-          });
+        fullVideo.subscribe('onAdClose' as any, (event) => {
+          console.log('广告被关闭监听', event);
+        });
 
-          fullVideo.subscribe('onAdClick' as any, (event) => {
-            console.log('广告点击查看详情监听', event);
-          });
-        }}
-      >
-        <Text style={{ textAlign: 'center' }}> Start 全屏视频广告</Text>
-      </TouchableOpacity>
-    )
-  }
-
-}
+        fullVideo.subscribe('onAdClick' as any, (event) => {
+          console.log('广告点击查看详情监听', event);
+        });
+      }}
+    >
+      <Text style={{ textAlign: 'center' }}> Start 全屏视频广告</Text>
+    </TouchableOpacity>
+  );
+};
 ```
 
 # 4. Draw广告
@@ -321,8 +316,8 @@ const RewardVideoPage = () => {
 ## 使用
 
 ```tsx
-import { loadDrawFeedAd, DrawFeedView } from 'react-native-brayant-ad';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { loadDrawFeedAd, DrawFeedView } from '@24jieqi/react-native-brayant-ad';
+import { useEffect } from 'react';
 
 const RewardVideoPage = () => {
   useEffect(() => {
@@ -332,26 +327,23 @@ const RewardVideoPage = () => {
     });
   }, []);
 
-  render() {
-    return (
-      <DrawFeedView
-        codeid={'957795405'}
-        appid={'5519001'}
-        visible={true}
-        onAdError={(e: any) => {
-          console.log('DrawFeedAd 加载失败', e);
-        }}
-        onAdShow={(e: any) => {
-          console.log('DrawFeedAd 开屏开始展示', e);
-        }}
-        onAdClick={(e: any) => {
-          console.log('onAdClick DrawFeed', e.nativeEvent);
-        }}
-      />
-    )
-  }
-
-}
+  return (
+    <DrawFeedView
+      codeid={'****'}
+      appid={'****'}
+      visible={true}
+      onAdError={(e: any) => {
+        console.log('DrawFeedAd 加载失败', e);
+      }}
+      onAdShow={(e: any) => {
+        console.log('DrawFeedAd 开屏开始展示', e);
+      }}
+      onAdClick={(e: any) => {
+        console.log('onAdClick DrawFeed', e.nativeEvent);
+      }}
+    />
+  );
+};
 ```
 
 # 5. Banner广告
@@ -379,8 +371,9 @@ const RewardVideoPage = () => {
 ## 使用
 
 ```tsx
-import { BannerAdView } from 'react-native-brayant-ad';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { BannerAdView, init } from '@24jieqi/react-native-brayant-ad';
+import { useEffect, useState } from 'react';
+import { View } from 'react-native';
 
 const BannerAdPage = () => {
   const [showBannerView, setShowBannerView] = useState(false);
@@ -445,37 +438,36 @@ const BannerAdPage = () => {
 ## 使用
 
 ```tsx
-import { FeedAdView } from 'react-native-brayant-ad';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { FeedAdView } from '@24jieqi/react-native-brayant-ad';
+import { useEffect, useState } from 'react';
 
 const RewardVideoPage = () => {
-  useEffect(() => {
+  const [showFeedView, setShowFeedView] = useState(false);
 
+  useEffect(() => {
+    setShowFeedView(true);
   }, []);
 
-  render() {
-    return (
-      <FeedAdView
-        codeid={'****'}
-        adWidth={400}
-        visible={showFeedView}
-        onAdLayout={(data: any) => {
-          console.log('Feed 广告加载成功！', data);
-        }}
-        onAdClose={(data: any) => {
-          console.log('Feed 广告关闭！', data);
-        }}
-        onAdError={(err: any) => {
-          console.log('Feed 广告加载失败！', err);
-        }}
-        onAdClick={(val: any) => {
-          console.log('Feed 广告被用户点击！', val);
-        }}
-      />
-    )
-  }
-
-}
+  return (
+    <FeedAdView
+      codeid={'****'}
+      adWidth={400}
+      visible={showFeedView}
+      onAdLayout={(data: any) => {
+        console.log('Feed 广告加载成功！', data);
+      }}
+      onAdClose={(data: any) => {
+        console.log('Feed 广告关闭！', data);
+      }}
+      onAdError={(err: any) => {
+        console.log('Feed 广告加载失败！', err);
+      }}
+      onAdClick={(val: any) => {
+        console.log('Feed 广告被用户点击！', val);
+      }}
+    />
+  );
+};
 ```
 
 ## License
