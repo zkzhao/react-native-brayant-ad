@@ -44,11 +44,13 @@ public class BannerAdView extends RelativeLayout {
     inflate(context, R.layout.feed_view, this);
     Utils.setupLayoutHack(this);
 
-    setLayoutParams(new RelativeLayout.LayoutParams(
+    RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
       RelativeLayout.LayoutParams.MATCH_PARENT,
-      RelativeLayout.LayoutParams.WRAP_CONTENT
-    ));
-    Log.d(TAG, "[DEBUG] BannerAdView constructor completed - LayoutParams set");
+      _expectedHeight
+    );
+    setLayoutParams(params);
+
+    Log.d(TAG, "[DEBUG] BannerAdView constructor completed - LayoutParams set (width=MATCH_PARENT, height=" + _expectedHeight + ")");
   }
 
   public void setWidth(int width) {
@@ -60,6 +62,14 @@ public class BannerAdView extends RelativeLayout {
   public void setHeight(int height) {
     Log.d(TAG, "[DEBUG] setHeight called - codeid=" + _codeid + ", height=" + height + ", current width=" + _expectedWidth);
     _expectedHeight = height;
+
+    LayoutParams params = getLayoutParams();
+    if (params != null) {
+      params.height = height;
+      setLayoutParams(params);
+      Log.d(TAG, "[DEBUG] setHeight - LayoutParams updated to height=" + height);
+    }
+
     showAd();
   }
 
@@ -217,6 +227,21 @@ public class BannerAdView extends RelativeLayout {
           mExpressContainer.addView(view, params);
 
           Log.d(TAG, "[DEBUG] onRenderSuccess - adView added to feed_container");
+
+          RelativeLayout.LayoutParams containerParams = (RelativeLayout.LayoutParams) mExpressContainer.getLayoutParams();
+          if (containerParams != null) {
+            containerParams.height = (int) height;
+            mExpressContainer.setLayoutParams(containerParams);
+            Log.d(TAG, "[DEBUG] onRenderSuccess - feed_container LayoutParams updated to height=" + (int) height);
+          }
+
+          RelativeLayout.LayoutParams viewParams = (RelativeLayout.LayoutParams) BannerAdView.this.getLayoutParams();
+          if (viewParams != null) {
+            viewParams.height = (int) height;
+            BannerAdView.this.setLayoutParams(viewParams);
+            Log.d(TAG, "[DEBUG] onRenderSuccess - BannerAdView LayoutParams updated to height=" + (int) height);
+          }
+
           Log.d(TAG, "[DEBUG] onRenderSuccess - BannerAdView size: width=" + BannerAdView.this.getWidth() + ", height=" + BannerAdView.this.getHeight());
           Log.d(TAG, "[DEBUG] onRenderSuccess - feed_container size: width=" + mExpressContainer.getWidth() + ", height=" + mExpressContainer.getHeight());
 
