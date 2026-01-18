@@ -40,6 +40,7 @@ public class BannerAdView extends RelativeLayout {
     super(context);
     mContext = context.getCurrentActivity();
     reactContext = context;
+    Log.d(TAG, "[DEBUG] BannerAdView constructor - inflating feed_view.xml");
     inflate(context, R.layout.feed_view, this);
     Utils.setupLayoutHack(this);
 
@@ -47,22 +48,23 @@ public class BannerAdView extends RelativeLayout {
       RelativeLayout.LayoutParams.MATCH_PARENT,
       RelativeLayout.LayoutParams.WRAP_CONTENT
     ));
+    Log.d(TAG, "[DEBUG] BannerAdView constructor completed - LayoutParams set");
   }
 
   public void setWidth(int width) {
-    Log.d(TAG, "setCodeId = " + _codeid + ", setWidth:" + width);
+    Log.d(TAG, "[DEBUG] setWidth called - codeid=" + _codeid + ", width=" + width + ", current height=" + _expectedHeight);
     _expectedWidth = width;
     showAd();
   }
 
   public void setHeight(int height) {
-    Log.d(TAG, "setCodeId = " + _codeid + ", setHeight:" + height);
+    Log.d(TAG, "[DEBUG] setHeight called - codeid=" + _codeid + ", height=" + height + ", current width=" + _expectedWidth);
     _expectedHeight = height;
     showAd();
   }
 
   public void setCodeId(String codeId) {
-    Log.d(TAG, "setCodeId: " + codeId + ", _expectedWidth:" + _expectedWidth);
+    Log.d(TAG, "[DEBUG] setCodeId called - codeid=" + codeId + ", _expectedWidth=" + _expectedWidth + ", _expectedHeight=" + _expectedHeight);
     _codeid = codeId;
     showAd();
   }
@@ -72,7 +74,7 @@ public class BannerAdView extends RelativeLayout {
    * @param visible true: 可见，false: 不可见
    */
   public void setVisibility(boolean visible) {
-    Log.d(TAG, "setVisibility: " + visible);
+    Log.d(TAG, "[DEBUG] setVisibility called - visible=" + visible + ", current codeid=" + _codeid + ", SDK initialized=" + (DyADCore.TTAdSdk != null));
     if (visible) {
       super.setVisibility(View.VISIBLE);
       // 可见时尝试加载广告
@@ -83,10 +85,11 @@ public class BannerAdView extends RelativeLayout {
   }
 
   public void showAd() {
-    Log.d(TAG, "showAd: width:" + _expectedWidth + " height:" + _expectedHeight + " codeid:" + _codeid);
+    Log.d(TAG, "[DEBUG] showAd called - width=" + _expectedWidth + ", height=" + _expectedHeight + ", codeid=" + _codeid + ", SDK initialized=" + (DyADCore.TTAdSdk != null));
 
     // 显示广告
     if (_expectedWidth <= 0 || _expectedHeight <= 0 || _codeid.isEmpty()) {
+      Log.w(TAG, "[DEBUG] showAd aborted - width=" + _expectedWidth + " (must >0), height=" + _expectedHeight + " (must >0), codeid=" + _codeid + " (must not be empty)");
       // 广告宽高未设置或 code id 未设置，停止显示广告
       return;
     }
@@ -94,6 +97,7 @@ public class BannerAdView extends RelativeLayout {
     // 在UI线程加载广告
     runOnUiThread(
       () -> {
+        Log.d(TAG, "[DEBUG] showAd - calling loadBannerAd on UI thread");
         loadBannerAd();
       }
     );
@@ -101,13 +105,16 @@ public class BannerAdView extends RelativeLayout {
 
   // 显示Banner广告
   public void loadBannerAd() {
+    Log.d(TAG, "[DEBUG] loadBannerAd called - SDK initialized=" + (DyADCore.TTAdSdk != null) + ", codeid=" + _codeid);
+
     if (DyADCore.TTAdSdk == null) {
-      Log.e(TAG, "TTAdSdk 还没初始化");
+      Log.e(TAG, "[DEBUG] loadBannerAd aborted - TTAdSdk not initialized yet");
       return;
     }
 
     // 如果已有广告，先销毁
     if (mBannerAd != null) {
+      Log.d(TAG, "[DEBUG] loadBannerAd - destroying previous ad");
       mBannerAd.destroy();
     }
 
@@ -120,6 +127,8 @@ public class BannerAdView extends RelativeLayout {
         .setExpressViewAcceptedSize(_expectedWidth, _expectedHeight) // 期望模板广告view的size,单位dp
         .build();
 
+    Log.d(TAG, "[DEBUG] loadBannerAd - requesting ad with AdSlot: codeid=" + _codeid + ", width=" + _expectedWidth + ", height=" + _expectedHeight);
+
     // 请求广告
     final BannerAdView _this = this;
     DyADCore.TTAdSdk.loadBannerExpressAd(
@@ -128,6 +137,7 @@ public class BannerAdView extends RelativeLayout {
 
         @Override
         public void onError(int code, String message) {
+          Log.e(TAG, "[DEBUG] onError - code=" + code + ", message=" + message);
           message =
             "Banner ad error: " + code + ", " + message;
           Log.e(TAG, message);
@@ -136,13 +146,15 @@ public class BannerAdView extends RelativeLayout {
 
         @Override
         public void onNativeExpressAdLoad(java.util.List<TTNativeExpressAd> ads) {
-          Log.d(TAG, "onNativeExpressAdLoad: Banner ad loaded!");
+          Log.d(TAG, "[DEBUG] onNativeExpressAdLoad - ads received=" + (ads != null ? ads.size() : "null"));
           if (ads == null || ads.isEmpty()) {
+            Log.e(TAG, "[DEBUG] onNativeExpressAdLoad - ads is null or empty");
             onAdError("Banner ad loaded but no content");
             return;
           }
 
           mBannerAd = ads.get(0);
+          Log.d(TAG, "[DEBUG] onNativeExpressAdLoad - calling _showBannerAd");
           _showBannerAd(mBannerAd);
         }
       }
@@ -185,16 +197,38 @@ public class BannerAdView extends RelativeLayout {
 
         @Override
         public void onRenderSuccess(View view, float width, float height) {
-          Log.d(TAG, "Banner onRenderSuccess: " + width + ", " + height);
+          Log.d(TAG, "[DEBUG] onRenderSuccess - adView width=" + width + ", adView height=" + height);
+
           RelativeLayout mExpressContainer = findViewById(R.id.feed_container);
-          if (mExpressContainer != null) {
-            mExpressContainer.removeAllViews();
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-              RelativeLayout.LayoutParams.MATCH_PARENT,
-              RelativeLayout.LayoutParams.WRAP_CONTENT
-            );
-            mExpressContainer.addView(view, params);
+
+          if (mExpressContainer == null) {
+            Log.e(TAG, "[DEBUG] onRenderSuccess - feed_container is null!");
+            onAdError("feed_container not found");
+            return;
           }
+
+          Log.d(TAG, "[DEBUG] onRenderSuccess - feed_container found, removing old views");
+          mExpressContainer.removeAllViews();
+
+          RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+            RelativeLayout.LayoutParams.MATCH_PARENT,
+            RelativeLayout.LayoutParams.WRAP_CONTENT
+          );
+          mExpressContainer.addView(view, params);
+
+          Log.d(TAG, "[DEBUG] onRenderSuccess - adView added to feed_container");
+          Log.d(TAG, "[DEBUG] onRenderSuccess - BannerAdView size: width=" + BannerAdView.this.getWidth() + ", height=" + BannerAdView.this.getHeight());
+          Log.d(TAG, "[DEBUG] onRenderSuccess - feed_container size: width=" + mExpressContainer.getWidth() + ", height=" + mExpressContainer.getHeight());
+
+          view.setVisibility(View.VISIBLE);
+          mExpressContainer.setVisibility(View.VISIBLE);
+          BannerAdView.this.setVisibility(View.VISIBLE);
+
+          mExpressContainer.requestLayout();
+          BannerAdView.this.requestLayout();
+
+          Log.d(TAG, "[DEBUG] onRenderSuccess - layout requested, sending onAdRenderSuccess event");
+
           onAdRenderSuccess((int) width, (int) height);
         }
       }
