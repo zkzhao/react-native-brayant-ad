@@ -65,6 +65,21 @@ public class BannerAdView extends RelativeLayout {
     showAd();
   }
 
+  /**
+   * 设置可见性
+   * @param visible true: 可见，false: 不可见
+   */
+  public void setVisibility(boolean visible) {
+    Log.d(TAG, "setVisibility: " + visible);
+    if (visible) {
+      setVisibility(View.VISIBLE);
+      // 可见时尝试加载广告
+      showAd();
+    } else {
+      setVisibility(View.INVISIBLE);
+    }
+  }
+
   public void showAd() {
     Log.d(TAG, "showAd: width:" + _expectedWidth + " height:" + _expectedHeight + " codeid:" + _codeid);
 

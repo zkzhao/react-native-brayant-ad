@@ -52,6 +52,11 @@ public class BannerAdViewManager extends ViewGroupManager<BannerAdView> {
     view.setHeight(adHeight);
   }
 
+  @ReactProp(name = "visible")
+  public void setVisible(BannerAdView view, boolean visible) {
+    view.setVisibility(visible);
+  }
+
   @Override
   public Map getExportedCustomBubblingEventTypeConstants() {
     return MapBuilder
