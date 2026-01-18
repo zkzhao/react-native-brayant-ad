@@ -40,11 +40,13 @@ public class BannerAdView extends RelativeLayout {
     super(context);
     mContext = context.getCurrentActivity();
     reactContext = context;
-    // 开始展开
     inflate(context, R.layout.feed_view, this);
-
-    // 这个函数很关键，不然不能触发再次渲染，让 view 在 RN 里渲染成功!!
     Utils.setupLayoutHack(this);
+
+    setLayoutParams(new RelativeLayout.LayoutParams(
+      RelativeLayout.LayoutParams.MATCH_PARENT,
+      RelativeLayout.LayoutParams.WRAP_CONTENT
+    ));
   }
 
   public void setWidth(int width) {
@@ -184,11 +186,14 @@ public class BannerAdView extends RelativeLayout {
         @Override
         public void onRenderSuccess(View view, float width, float height) {
           Log.d(TAG, "Banner onRenderSuccess: " + width + ", " + height);
-          // 在渲染成功回调时展示广告
           RelativeLayout mExpressContainer = findViewById(R.id.feed_container);
           if (mExpressContainer != null) {
             mExpressContainer.removeAllViews();
-            mExpressContainer.addView(view);
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+              RelativeLayout.LayoutParams.MATCH_PARENT,
+              RelativeLayout.LayoutParams.WRAP_CONTENT
+            );
+            mExpressContainer.addView(view, params);
           }
           onAdRenderSuccess((int) width, (int) height);
         }
