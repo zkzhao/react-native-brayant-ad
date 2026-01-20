@@ -13,9 +13,17 @@
 
 @end
 
+// BannerAd is currently Android-only
+// This file is kept for potential future iOS support
+// For now, BannerAdViewManager is not registered on iOS to avoid conflicts
+
 @implementation BannerAdViewManager
 
-RCT_EXPORT_MODULE(BannerAdViewManager)
+// BannerAd currently only supports Android platform
+// To avoid "Tried to register two views with the same name" error,
+// we do not register this ViewManager on iOS
+// Uncomment the line below if iOS support is added in the future
+// RCT_EXPORT_MODULE(BannerAdViewManager)
 
 - (UIView *)view {
   // BannerAd is managed by BannerAd singleton, not a direct view

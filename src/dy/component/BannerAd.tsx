@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { Platform, requireNativeComponent, UIManager } from 'react-native';
 import type { ViewStyle } from 'react-native';
-const ComponentName = 'BannerAdViewManager';
+
+// BannerAd currently only supports Android platform
+const ComponentName = Platform.select({
+  android: 'BannerAdViewManager',
+  ios: undefined,
+}) as string | undefined;
 
 export interface BannerAdProps {
   codeid: string;
@@ -18,10 +23,11 @@ export interface BannerAdProps {
 }
 
 const LINKING_ERROR =
-  `The package 'react-native-view' doesn't seem to be linked. Make sure: \n\n` +
+  `The package 'react-native-brayant-ad' doesn't seem to be linked. Make sure: \n\n` +
   Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
   '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo Go\n';
+  '- You are not using Expo Go\n' +
+  '\nNote: BannerAd is currently only supported on Android platform.';
 
 const BannerAdView = (props: BannerAdProps) => {
   const {
@@ -41,7 +47,17 @@ const BannerAdView = (props: BannerAdProps) => {
   const [dismissed, setDismissed] = useState(false);
   const [height, setHeight] = useState(adHeight);
 
+  // BannerAd is only supported on Android
+  if (Platform.OS !== 'android') {
+    return null;
+  }
+
   if (!visible || dismissed) return null;
+
+  // Ensure ComponentName is defined for Android
+  if (!ComponentName) {
+    return null;
+  }
 
   const BannerAdComponent =
     UIManager.getViewManagerConfig(ComponentName) != null

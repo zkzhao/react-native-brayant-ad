@@ -229,14 +229,14 @@ public class BannerAdView extends RelativeLayout {
 
           Log.d(TAG, "[DEBUG] onRenderSuccess - adView added to feed_container");
 
-          RelativeLayout.LayoutParams containerParams = (RelativeLayout.LayoutParams) mExpressContainer.getLayoutParams();
+          ViewGroup.LayoutParams containerParams = mExpressContainer.getLayoutParams();
           if (containerParams != null) {
             containerParams.height = (int) height;
             mExpressContainer.setLayoutParams(containerParams);
             Log.d(TAG, "[DEBUG] onRenderSuccess - feed_container LayoutParams updated to height=" + (int) height);
           }
 
-          RelativeLayout.LayoutParams viewParams = (RelativeLayout.LayoutParams) BannerAdView.this.getLayoutParams();
+          ViewGroup.LayoutParams viewParams = BannerAdView.this.getLayoutParams();
           if (viewParams != null) {
             viewParams.height = (int) height;
             BannerAdView.this.setLayoutParams(viewParams);
