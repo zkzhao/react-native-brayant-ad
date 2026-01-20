@@ -63,7 +63,7 @@ public class BannerAdView extends RelativeLayout {
     Log.d(TAG, "[DEBUG] setHeight called - codeid=" + _codeid + ", height=" + height + ", current width=" + _expectedWidth);
     _expectedHeight = height;
 
-    LayoutParams params = getLayoutParams();
+    RelativeLayout.LayoutParams params = getLayoutParams();
     if (params != null) {
       params.height = height;
       setLayoutParams(params);
