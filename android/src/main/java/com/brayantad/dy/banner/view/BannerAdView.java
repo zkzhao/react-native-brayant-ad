@@ -5,6 +5,7 @@ import static com.facebook.react.bridge.UiThreadUtil.runOnUiThread;
 import android.app.Activity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
@@ -63,7 +64,7 @@ public class BannerAdView extends RelativeLayout {
     Log.d(TAG, "[DEBUG] setHeight called - codeid=" + _codeid + ", height=" + height + ", current width=" + _expectedWidth);
     _expectedHeight = height;
 
-    RelativeLayout.LayoutParams params = getLayoutParams();
+    ViewGroup.LayoutParams params = getLayoutParams();
     if (params != null) {
       params.height = height;
       setLayoutParams(params);
