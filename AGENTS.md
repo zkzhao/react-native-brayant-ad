@@ -1,3 +1,8 @@
+# 交互要求
+
+- Thinking思考过程用中文表述
+- Reply回答用中文回复
+
 # Agent Guidelines for react-native-brayant-ad
 
 This file provides guidelines for AI agents working on this React Native ad SDK library.
