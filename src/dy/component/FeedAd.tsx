@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { Platform, requireNativeComponent, UIManager } from 'react-native';
 import type { ViewStyle } from 'react-native';
+
 const ComponentName = 'FeedAdViewManager';
 
 export interface FeedAdProps {
@@ -20,10 +21,15 @@ export interface FeedAdProps {
 }
 
 const LINKING_ERROR =
-  `The package 'react-native-view' doesn't seem to be linked. Make sure: \n\n` +
+  `The package 'react-native-brayant-ad' doesn't seem to be linked. Make sure: \n\n` +
   Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n';
+
+// Define native component at module level to avoid duplicate registration
+const FeedAdNativeComponent = UIManager.getViewManagerConfig(ComponentName) != null
+  ? requireNativeComponent<FeedAdProps>(ComponentName)
+  : undefined;
 
 const FeedAdView = (props: FeedAdProps) => {
   const {
@@ -43,14 +49,12 @@ const FeedAdView = (props: FeedAdProps) => {
   // FeedAd是否显示，外部和内部均可控制，外部visible、内部closed
   if (!visible || closed) return null;
 
-  const FeedAdComponent =
-    UIManager.getViewManagerConfig(ComponentName) != null
-      ? requireNativeComponent<FeedAdProps>(ComponentName)
-      : () => {
-          throw new Error(LINKING_ERROR);
-        };
+  if (!FeedAdNativeComponent) {
+    throw new Error(LINKING_ERROR);
+  }
+
   return (
-    <FeedAdComponent
+    <FeedAdNativeComponent
       codeid={codeid}
       // 里面素材的宽度，减30是有些情况下，里面素材过宽贴边显示不全
       adWidth={adWidth - 30}
@@ -75,4 +79,5 @@ const FeedAdView = (props: FeedAdProps) => {
     />
   );
 };
-export default FeedAdView;
+
+export default React.memo(FeedAdView);

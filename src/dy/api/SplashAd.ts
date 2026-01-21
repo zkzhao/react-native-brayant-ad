@@ -4,6 +4,7 @@
  * @description: 开屏广告
  */
 import { NativeModules, NativeEventEmitter } from 'react-native';
+import type { EventSubscription } from 'react-native';
 const { SplashAd } = NativeModules;
 
 export interface AD_EVENT_TYPE {
@@ -18,16 +19,17 @@ export interface SPLASHAD_PROPS_TYPE {
   anim?: 'default' | 'none' | 'catalyst' | 'slide' | 'fade';
 }
 
-const listenerCache: any = {};
-
 const dyLoadSplashAd = ({ codeid, anim = 'default' }: SPLASHAD_PROPS_TYPE) => {
   const eventEmitter = new NativeEventEmitter(SplashAd);
+  // Per-instance listener cache to avoid conflicts with multiple ads
+  const listenerCache: Record<string, EventSubscription | undefined> = {};
   let result = SplashAd.loadSplashAd({ codeid, anim });
   return {
     result,
     subscribe: (type: keyof AD_EVENT_TYPE, callback: (event: any) => void) => {
+      // Remove previous listener for this type in this instance only
       if (listenerCache[type]) {
-        listenerCache[type].remove();
+        listenerCache[type]?.remove();
       }
       return (listenerCache[type] = eventEmitter.addListener(
         'SplashAd-' + type,
@@ -37,6 +39,15 @@ const dyLoadSplashAd = ({ codeid, anim = 'default' }: SPLASHAD_PROPS_TYPE) => {
           callback(event);
         }
       ));
+    },
+    // Provide cleanup method
+    cleanup: () => {
+      Object.values(listenerCache).forEach((subscription) => {
+        subscription?.remove();
+      });
+      Object.keys(listenerCache).forEach((key) => {
+        delete listenerCache[key];
+      });
     },
   };
 };

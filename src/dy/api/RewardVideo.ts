@@ -12,22 +12,21 @@ type ListenerCache = {
   [K in AD_EVENT_TYPE]: EventSubscription | undefined;
 };
 
-let listenerCache: ListenerCache = {} as ListenerCache;
-
 type rewardInfo = {
   codeid: string;
 };
 
 export default function (info: rewardInfo) {
   const eventEmitter = new NativeEventEmitter(RewardVideoModule);
+  // Per-instance listener cache to avoid conflicts with multiple ads
+  const listenerCache: ListenerCache = {} as ListenerCache;
   let result = RewardVideoModule.startAd(info);
   return {
     result,
     subscribe: (type: AD_EVENT_TYPE, callback: (event: any) => void) => {
+      // Remove previous listener for this type in this instance only
       if (listenerCache[type]) {
         listenerCache[type]?.remove();
-      } else {
-        console.warn(`Listener for ${type} not found in the cache.`);
       }
       return (listenerCache[type] = eventEmitter.addListener(
         'RewardVideo-' + type,
@@ -35,6 +34,15 @@ export default function (info: rewardInfo) {
           callback(event);
         }
       ));
+    },
+    // Provide cleanup method
+    cleanup: () => {
+      Object.values(listenerCache).forEach((subscription) => {
+        subscription?.remove();
+      });
+      Object.keys(listenerCache).forEach((key) => {
+        delete listenerCache[key as AD_EVENT_TYPE];
+      });
     },
   };
 }

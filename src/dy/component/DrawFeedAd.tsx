@@ -15,7 +15,7 @@ import {
 const { DrawFeedAdModule } = NativeModules;
 
 const LINKING_ERROR =
-  `The package 'react-native-view' doesn't seem to be linked. Make sure: \n\n` +
+  `The package 'react-native-brayant-ad' doesn't seem to be linked. Make sure: \n\n` +
   Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n';
@@ -38,6 +38,11 @@ export const loadDrawFeedAd = (info: { appid: string; codeid: string }) => {
   DrawFeedAdModule.loadDrawFeedAd(info);
 };
 
+// Define native component at module level to avoid duplicate registration
+const DrawFeedAdNativeComponent = UIManager.getViewManagerConfig(ComponentName) != null
+  ? requireNativeComponent<ViewProps>(ComponentName)
+  : undefined;
+
 export const DrawFeedView = (props: DrawFeedAdProps) => {
   const {
     codeid,
@@ -50,15 +55,13 @@ export const DrawFeedView = (props: DrawFeedAdProps) => {
   if (!visible) return null;
 
   const styleObj = style ? style : styles.container;
-  const ViewView =
-    UIManager.getViewManagerConfig(ComponentName) != null
-      ? requireNativeComponent<ViewProps>(ComponentName)
-      : () => {
-          throw new Error(LINKING_ERROR);
-        };
+
+  if (!DrawFeedAdNativeComponent) {
+    throw new Error(LINKING_ERROR);
+  }
 
   return (
-    <ViewView
+    <DrawFeedAdNativeComponent
       codeid={codeid}
       onAdError={(e: any) => {
         console.log('onAdError DrawFeed', e.nativeEvent);
@@ -84,4 +87,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DrawFeedView;
+export default React.memo(DrawFeedView);
