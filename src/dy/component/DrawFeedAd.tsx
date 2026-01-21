@@ -3,7 +3,7 @@
  * @createdTime: 2024-05-2024/5/18 13:39
  * @description: description
  */
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   type ViewStyle,
   UIManager,
@@ -54,28 +54,35 @@ export const DrawFeedView = (props: DrawFeedAdProps) => {
   } = props;
   if (!visible) return null;
 
-  const styleObj = style ? style : styles.container;
+  const styleObj = useMemo(() => style || styles.container, [style]);
 
   if (!DrawFeedAdNativeComponent) {
     throw new Error(LINKING_ERROR);
   }
 
+  // Stable callbacks using useCallback to prevent re-renders
+  const handleError = useCallback((e: any) => {
+    console.log('onAdError DrawFeed', e.nativeEvent);
+    onAdError?.(e.nativeEvent);
+  }, [onAdError]);
+
+  const handleClick = useCallback((e: any) => {
+    console.log('onAdClick DrawFeed', e.nativeEvent);
+    onAdClick?.(e.nativeEvent);
+  }, [onAdClick]);
+
+  const handleShow = useCallback((e: any) => {
+    console.log('onAdShow DrawFeed', e.nativeEvent);
+    onAdShow?.(e.nativeEvent);
+  }, [onAdShow]);
+
   return (
     <DrawFeedAdNativeComponent
       codeid={codeid}
-      onAdError={(e: any) => {
-        console.log('onAdError DrawFeed', e.nativeEvent);
-        onAdError && onAdError(e.nativeEvent);
-      }}
-      onAdClick={(e: any) => {
-        console.log('onAdClick DrawFeed', e.nativeEvent);
-        onAdClick && onAdClick(e.nativeEvent);
-      }}
-      onAdShow={(e: any) => {
-        console.log('onAdShow DrawFeed', e.nativeEvent);
-        onAdShow && onAdShow(e.nativeEvent);
-      }}
-      style={{ ...styleObj }}
+      onAdError={handleError}
+      onAdClick={handleClick}
+      onAdShow={handleShow}
+      style={styleObj}
     />
   );
 };
@@ -87,4 +94,11 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo(DrawFeedView);
+export default React.memo(DrawFeedView, (prevProps, nextProps) => {
+  // Custom comparison function for React.memo
+  // Only re-render if visible changes or key props change
+  return (
+    prevProps.codeid === nextProps.codeid &&
+    prevProps.visible === nextProps.visible
+  );
+});
