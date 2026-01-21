@@ -49,6 +49,15 @@ const BannerAdView = (props: BannerAdProps) => {
     visible = true,
   } = props;
 
+  // BannerAd is only supported on Android - Check before hooks
+  if (Platform.OS !== 'android') {
+    return null;
+  }
+
+  if (!visible) {
+    return null;
+  }
+
   const [dismissed, setDismissed] = useState(false);
   const [height, setHeight] = useState(adHeight);
 
@@ -64,12 +73,8 @@ const BannerAdView = (props: BannerAdProps) => {
     }
   }, [visible, adHeight]);
 
-  // BannerAd is only supported on Android
-  if (Platform.OS !== 'android') {
-    return null;
-  }
-
-  if (!visible || dismissed) return null;
+  // Early return after dismissed state is set (after hooks)
+  if (dismissed) return null;
 
   if (!BannerAdNativeComponent) {
     throw new Error(LINKING_ERROR);

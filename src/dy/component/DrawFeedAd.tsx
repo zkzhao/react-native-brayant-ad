@@ -52,9 +52,10 @@ export const DrawFeedView = (props: DrawFeedAdProps) => {
     visible = true,
     style,
   } = props;
-  if (!visible) return null;
 
   const styleObj = useMemo(() => style || styles.container, [style]);
+
+  if (!visible) return null;
 
   if (!DrawFeedAdNativeComponent) {
     throw new Error(LINKING_ERROR);

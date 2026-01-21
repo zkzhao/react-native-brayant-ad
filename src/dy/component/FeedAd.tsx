@@ -43,6 +43,12 @@ const FeedAdView = (props: FeedAdProps) => {
     visible = true,
   } = props;
 
+  // FeedAd是否显示，外部和内部均可控制，外部visible、内部closed
+  // Check visible before hooks to avoid hooks order issues
+  if (!visible) {
+    return null;
+  }
+
   const [closed, setClosed] = useState(false);
   const [height, setHeight] = useState(0);
 
@@ -58,8 +64,8 @@ const FeedAdView = (props: FeedAdProps) => {
     }
   }, [visible]);
 
-  // FeedAd是否显示，外部和内部均可控制，外部visible、内部closed
-  if (!visible || closed) return null;
+  // Early return after closed state is set (after hooks)
+  if (closed) return null;
 
   if (!FeedAdNativeComponent) {
     throw new Error(LINKING_ERROR);
