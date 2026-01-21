@@ -1,7 +1,6 @@
-# 交互要求
+# 语言规范
 
-- Thinking思考过程用中文表述
-- Reply回答用中文回复
+- 所有对话和文档都使用中文
 
 # Agent Guidelines for react-native-brayant-ad
 

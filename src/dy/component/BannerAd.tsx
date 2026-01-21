@@ -4,7 +4,7 @@ import type { ViewStyle } from 'react-native';
 
 // BannerAd currently only supports Android platform
 const ComponentName = Platform.select({
-  android: 'BannerAdViewManager',
+  android: 'BrayantBannerAdViewManager',
   ios: undefined,
 }) as string | undefined;
 

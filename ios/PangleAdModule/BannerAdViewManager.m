@@ -23,7 +23,7 @@
 // To avoid "Tried to register two views with the same name" error,
 // we do not register this ViewManager on iOS
 // Uncomment the line below if iOS support is added in the future
-// RCT_EXPORT_MODULE(BannerAdViewManager)
+// RCT_EXPORT_MODULE(BrayantBannerAdViewManager)
 
 - (UIView *)view {
   // BannerAd is managed by BannerAd singleton, not a direct view

@@ -13,7 +13,7 @@ import com.facebook.react.uimanager.annotations.ReactProp;
 import java.util.Map;
 
 public class BannerAdViewManager extends ViewGroupManager<BannerAdView> {
-  public static final String TAG = "BannerAdViewManager";
+  public static final String TAG = "BrayantBannerAdViewManager";
 
   @NonNull
   @Override
