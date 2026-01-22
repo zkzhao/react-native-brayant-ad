@@ -1,12 +1,19 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Platform, requireNativeComponent, UIManager } from 'react-native';
 import type { ViewStyle } from 'react-native';
 
 // BannerAd currently only supports Android platform
 const ComponentName = Platform.select({
-  android: 'BrayantBannerAdViewManager',
+  android: 'BannerAdViewManager',
   ios: undefined,
 }) as string | undefined;
+
+export interface BannerAdEvent {
+  message?: string;
+  width?: number;
+  height?: number;
+  reason?: string;
+}
 
 export interface BannerAdProps {
   codeid: string;
@@ -14,12 +21,12 @@ export interface BannerAdProps {
   adWidth?: number;
   adHeight?: number;
   visible?: boolean;
-  onAdRenderSuccess?: Function;
-  onAdError?: Function;
-  onAdDismiss?: Function;
-  onAdClick?: Function;
-  onAdShow?: Function;
-  onAdDislike?: Function;
+  onAdRenderSuccess?: (event: BannerAdEvent) => void;
+  onAdError?: (event: BannerAdEvent) => void;
+  onAdDismiss?: (event: BannerAdEvent) => void;
+  onAdClick?: (event: BannerAdEvent) => void;
+  onAdShow?: (event: BannerAdEvent) => void;
+  onAdDislike?: (event: BannerAdEvent) => void;
 }
 
 const LINKING_ERROR =
@@ -30,9 +37,10 @@ const LINKING_ERROR =
   '\nNote: BannerAd is currently only supported on Android platform.';
 
 // Define native component at module level to avoid duplicate registration
-const BannerAdNativeComponent = ComponentName && UIManager.getViewManagerConfig(ComponentName) != null
-  ? requireNativeComponent<BannerAdProps>(ComponentName)
-  : undefined;
+const BannerAdNativeComponent =
+  ComponentName && UIManager.getViewManagerConfig(ComponentName) != null
+    ? requireNativeComponent<BannerAdProps>(ComponentName)
+    : undefined;
 
 const BannerAdView = (props: BannerAdProps) => {
   const {
@@ -49,19 +57,9 @@ const BannerAdView = (props: BannerAdProps) => {
     visible = true,
   } = props;
 
-  // BannerAd is only supported on Android - Check before hooks
-  if (Platform.OS !== 'android') {
-    return null;
-  }
-
-  if (!visible) {
-    return null;
-  }
-
+  // All hooks must be called at the top level, unconditionally
   const [dismissed, setDismissed] = useState(false);
   const [height, setHeight] = useState(adHeight);
-
-  // Use ref to track if height has been set to prevent unnecessary re-renders
   const heightInitialized = useRef(false);
 
   // Reset state when visible changes from false to true to allow re-display
@@ -73,71 +71,45 @@ const BannerAdView = (props: BannerAdProps) => {
     }
   }, [visible, adHeight]);
 
-  // Early return after dismissed state is set (after hooks)
-  if (dismissed) return null;
+  // Early returns after all hooks
+  if (Platform.OS !== 'android' || !visible || dismissed) {
+    return null;
+  }
 
   if (!BannerAdNativeComponent) {
     throw new Error(LINKING_ERROR);
   }
-
-  // Use useMemo to cache style object and prevent unnecessary re-renders
-  const containerStyle = useMemo(() => ({
-    width: adWidth,
-    height,
-    ...style,
-  }), [adWidth, height, style]);
-
-  // Stable callbacks using useCallback to prevent re-renders
-  const handleError = useCallback((e: any) => {
-    onAdError?.(e.nativeEvent);
-  }, [onAdError]);
-
-  const handleClick = useCallback((e: any) => {
-    onAdClick?.(e.nativeEvent);
-  }, [onAdClick]);
-
-  const handleDismiss = useCallback((e: any) => {
-    setDismissed(true);
-    onAdDismiss?.(e.nativeEvent);
-  }, [onAdDismiss]);
-
-  const handleShow = useCallback((e: any) => {
-    onAdShow?.(e.nativeEvent);
-  }, [onAdShow]);
-
-  const handleRenderSuccess = useCallback((e: any) => {
-    const newHeight = e.nativeEvent.height;
-    if (newHeight && !heightInitialized.current) {
-      setHeight(newHeight + 10);
-      heightInitialized.current = true;
-    }
-    onAdRenderSuccess?.(e.nativeEvent);
-  }, [onAdRenderSuccess]);
-
-  const handleDislike = useCallback((e: any) => {
-    setDismissed(true);
-    onAdDislike?.(e.nativeEvent);
-  }, [onAdDislike]);
 
   return (
     <BannerAdNativeComponent
       codeid={codeid}
       adWidth={adWidth}
       adHeight={height}
-      style={containerStyle}
-      onAdError={handleError}
-      onAdClick={handleClick}
-      onAdDismiss={handleDismiss}
-      onAdShow={handleShow}
-      onAdRenderSuccess={handleRenderSuccess}
-      onAdDislike={handleDislike}
+      style={{ width: adWidth, height, ...style }}
+      onAdError={(e: any) => onAdError?.(e.nativeEvent)}
+      onAdClick={(e: any) => onAdClick?.(e.nativeEvent)}
+      onAdDismiss={(e: any) => {
+        setDismissed(true);
+        onAdDismiss?.(e.nativeEvent);
+      }}
+      onAdShow={(e: any) => onAdShow?.(e.nativeEvent)}
+      onAdRenderSuccess={(e: any) => {
+        const newHeight = e.nativeEvent.height;
+        if (newHeight && !heightInitialized.current) {
+          setHeight(newHeight + 10);
+          heightInitialized.current = true;
+        }
+        onAdRenderSuccess?.(e.nativeEvent);
+      }}
+      onAdDislike={(e: any) => {
+        setDismissed(true);
+        onAdDislike?.(e.nativeEvent);
+      }}
     />
   );
 };
 
 export default React.memo(BannerAdView, (prevProps, nextProps) => {
-  // Custom comparison function for React.memo
-  // Only re-render if visible changes or key props change
   return (
     prevProps.codeid === nextProps.codeid &&
     prevProps.visible === nextProps.visible &&
@@ -145,4 +117,3 @@ export default React.memo(BannerAdView, (prevProps, nextProps) => {
     prevProps.adHeight === nextProps.adHeight
   );
 });
-
