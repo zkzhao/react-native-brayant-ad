@@ -3,7 +3,13 @@
  * @createdTime: 2024-05-2024/5/20 22:00
  * @description: description
  */
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  useMemo,
+} from 'react';
 import { Platform, requireNativeComponent, UIManager } from 'react-native';
 import type { ViewStyle } from 'react-native';
 
@@ -26,10 +32,21 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n';
 
-// Define native component at module level to avoid duplicate registration
-const FeedAdNativeComponent = UIManager.getViewManagerConfig(ComponentName) != null
-  ? requireNativeComponent<FeedAdProps>(ComponentName)
-  : undefined;
+// Lazy load native component to avoid duplicate registration on hot reload
+type FeedAdComponentType = React.ComponentType<FeedAdProps> | null;
+let FeedAdNativeComponent: FeedAdComponentType = null;
+
+const getFeedAdComponent = (): FeedAdComponentType => {
+  if (FeedAdNativeComponent === null) {
+    if (UIManager.getViewManagerConfig(ComponentName) != null) {
+      FeedAdNativeComponent =
+        requireNativeComponent<FeedAdProps>(ComponentName);
+    } else {
+      FeedAdNativeComponent = null;
+    }
+  }
+  return FeedAdNativeComponent;
+};
 
 const FeedAdView = (props: FeedAdProps) => {
   const {
@@ -43,16 +60,9 @@ const FeedAdView = (props: FeedAdProps) => {
     visible = true,
   } = props;
 
-  // FeedAd是否显示，外部和内部均可控制，外部visible、内部closed
-  // Check visible before hooks to avoid hooks order issues
-  if (!visible) {
-    return null;
-  }
-
+  // All hooks must be called at the top level, unconditionally
   const [closed, setClosed] = useState(false);
   const [height, setHeight] = useState(0);
-
-  // Use ref to track if height has been set to prevent unnecessary re-renders
   const heightInitialized = useRef(false);
 
   // Reset state when visible changes from false to true to allow re-display
@@ -64,45 +74,64 @@ const FeedAdView = (props: FeedAdProps) => {
     }
   }, [visible]);
 
-  // Early return after closed state is set (after hooks)
-  if (closed) return null;
+  // Use useMemo to cache style object and prevent unnecessary re-renders
+  const containerStyle = useMemo(
+    () => ({
+      width: adWidth,
+      height,
+      ...style,
+    }),
+    [adWidth, height, style]
+  );
 
-  if (!FeedAdNativeComponent) {
+  // Stable callbacks using useCallback to prevent re-renders
+  const handleError = useCallback(
+    (e: any) => {
+      onAdError?.(e.nativeEvent);
+    },
+    [onAdError]
+  );
+
+  const handleClick = useCallback(
+    (e: any) => {
+      onAdClick?.(e.nativeEvent);
+    },
+    [onAdClick]
+  );
+
+  const handleClose = useCallback(
+    (e: any) => {
+      setClosed(true);
+      onAdClose?.(e.nativeEvent);
+    },
+    [onAdClose]
+  );
+
+  const handleLayout = useCallback(
+    (e: any) => {
+      const newHeight = e.nativeEvent.height;
+      if (newHeight && !heightInitialized.current) {
+        setHeight(newHeight + 10);
+        heightInitialized.current = true;
+      }
+      onAdLayout?.(e.nativeEvent);
+    },
+    [onAdLayout]
+  );
+
+  // Early returns after all hooks
+  if (!visible || closed) {
+    return null;
+  }
+
+  const NativeComponent = getFeedAdComponent();
+
+  if (!NativeComponent) {
     throw new Error(LINKING_ERROR);
   }
 
-  // Use useMemo to cache style object and prevent unnecessary re-renders
-  const containerStyle = useMemo(() => ({
-    width: adWidth,
-    height,
-    ...style,
-  }), [adWidth, height, style]);
-
-  // Stable callbacks using useCallback to prevent re-renders
-  const handleError = useCallback((e: any) => {
-    onAdError?.(e.nativeEvent);
-  }, [onAdError]);
-
-  const handleClick = useCallback((e: any) => {
-    onAdClick?.(e.nativeEvent);
-  }, [onAdClick]);
-
-  const handleClose = useCallback((e: any) => {
-    setClosed(true);
-    onAdClose?.(e.nativeEvent);
-  }, [onAdClose]);
-
-  const handleLayout = useCallback((e: any) => {
-    const newHeight = e.nativeEvent.height;
-    if (newHeight && !heightInitialized.current) {
-      setHeight(newHeight + 10);
-      heightInitialized.current = true;
-    }
-    onAdLayout?.(e.nativeEvent);
-  }, [onAdLayout]);
-
   return (
-    <FeedAdNativeComponent
+    <NativeComponent
       codeid={codeid}
       // 里面素材的宽度，减30是有些情况下，里面素材过宽贴边显示不全
       adWidth={adWidth - 30}

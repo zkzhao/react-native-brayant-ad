@@ -36,11 +36,24 @@ const LINKING_ERROR =
   '- You are not using Expo Go\n' +
   '\nNote: BannerAd is currently only supported on Android platform.';
 
-// Define native component at module level to avoid duplicate registration
-const BannerAdNativeComponent =
-  ComponentName && UIManager.getViewManagerConfig(ComponentName) != null
-    ? requireNativeComponent<BannerAdProps>(ComponentName)
-    : undefined;
+// Lazy load native component to avoid duplicate registration on hot reload
+type BannerAdComponentType = React.ComponentType<BannerAdProps> | null;
+let BannerAdNativeComponent: BannerAdComponentType = null;
+
+const getBannerAdComponent = (): BannerAdComponentType => {
+  if (BannerAdNativeComponent === null) {
+    if (
+      ComponentName &&
+      UIManager.getViewManagerConfig(ComponentName) != null
+    ) {
+      BannerAdNativeComponent =
+        requireNativeComponent<BannerAdProps>(ComponentName);
+    } else {
+      BannerAdNativeComponent = null;
+    }
+  }
+  return BannerAdNativeComponent;
+};
 
 const BannerAdView = (props: BannerAdProps) => {
   const {
@@ -76,12 +89,14 @@ const BannerAdView = (props: BannerAdProps) => {
     return null;
   }
 
-  if (!BannerAdNativeComponent) {
+  const NativeComponent = getBannerAdComponent();
+
+  if (!NativeComponent) {
     throw new Error(LINKING_ERROR);
   }
 
   return (
-    <BannerAdNativeComponent
+    <NativeComponent
       codeid={codeid}
       adWidth={adWidth}
       adHeight={height}

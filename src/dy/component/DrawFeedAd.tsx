@@ -38,10 +38,21 @@ export const loadDrawFeedAd = (info: { appid: string; codeid: string }) => {
   DrawFeedAdModule.loadDrawFeedAd(info);
 };
 
-// Define native component at module level to avoid duplicate registration
-const DrawFeedAdNativeComponent = UIManager.getViewManagerConfig(ComponentName) != null
-  ? requireNativeComponent<ViewProps>(ComponentName)
-  : undefined;
+// Lazy load native component to avoid duplicate registration on hot reload
+type DrawFeedAdComponentType = React.ComponentType<ViewProps> | null;
+let DrawFeedAdNativeComponent: DrawFeedAdComponentType = null;
+
+const getDrawFeedAdComponent = (): DrawFeedAdComponentType => {
+  if (DrawFeedAdNativeComponent === null) {
+    if (UIManager.getViewManagerConfig(ComponentName) != null) {
+      DrawFeedAdNativeComponent =
+        requireNativeComponent<ViewProps>(ComponentName);
+    } else {
+      DrawFeedAdNativeComponent = null;
+    }
+  }
+  return DrawFeedAdNativeComponent;
+};
 
 export const DrawFeedView = (props: DrawFeedAdProps) => {
   const {
@@ -53,32 +64,45 @@ export const DrawFeedView = (props: DrawFeedAdProps) => {
     style,
   } = props;
 
+  // All hooks must be called at the top level, unconditionally
   const styleObj = useMemo(() => style || styles.container, [style]);
 
+  // Stable callbacks using useCallback to prevent re-renders
+  const handleError = useCallback(
+    (e: any) => {
+      console.log('onAdError DrawFeed', e.nativeEvent);
+      onAdError?.(e.nativeEvent);
+    },
+    [onAdError]
+  );
+
+  const handleClick = useCallback(
+    (e: any) => {
+      console.log('onAdClick DrawFeed', e.nativeEvent);
+      onAdClick?.(e.nativeEvent);
+    },
+    [onAdClick]
+  );
+
+  const handleShow = useCallback(
+    (e: any) => {
+      console.log('onAdShow DrawFeed', e.nativeEvent);
+      onAdShow?.(e.nativeEvent);
+    },
+    [onAdShow]
+  );
+
+  // Early return for visibility check (after all hooks)
   if (!visible) return null;
 
-  if (!DrawFeedAdNativeComponent) {
+  const NativeComponent = getDrawFeedAdComponent();
+
+  if (!NativeComponent) {
     throw new Error(LINKING_ERROR);
   }
 
-  // Stable callbacks using useCallback to prevent re-renders
-  const handleError = useCallback((e: any) => {
-    console.log('onAdError DrawFeed', e.nativeEvent);
-    onAdError?.(e.nativeEvent);
-  }, [onAdError]);
-
-  const handleClick = useCallback((e: any) => {
-    console.log('onAdClick DrawFeed', e.nativeEvent);
-    onAdClick?.(e.nativeEvent);
-  }, [onAdClick]);
-
-  const handleShow = useCallback((e: any) => {
-    console.log('onAdShow DrawFeed', e.nativeEvent);
-    onAdShow?.(e.nativeEvent);
-  }, [onAdShow]);
-
   return (
-    <DrawFeedAdNativeComponent
+    <NativeComponent
       codeid={codeid}
       onAdError={handleError}
       onAdClick={handleClick}
