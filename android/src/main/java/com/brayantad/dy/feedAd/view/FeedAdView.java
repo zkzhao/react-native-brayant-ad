@@ -50,6 +50,9 @@ public class FeedAdView extends RelativeLayout {
     //开始展开
     inflate(context, R.layout.feed_view, this);
 
+    // 初始隐藏容器，避免白屏闪现
+    setVisibility(View.INVISIBLE);
+
     // 这个函数很关键，不然不能触发再次渲染，让 view 在 RN 里渲染成功!!
     Utils.setupLayoutHack(this);
   }
@@ -173,18 +176,15 @@ public class FeedAdView extends RelativeLayout {
 
         @Override
         public void onRenderSuccess(View view, float width, float height) {
-          // 返回view的宽高 单位 dp
-          // TToast.show(mContext, "渲染成功");
-          // 在渲染成功回调时展示广告，提升体验
           RelativeLayout mExpressContainer = findViewById(R.id.feed_container);
           if (mExpressContainer != null) {
             mExpressContainer.addView(view);
           }
+          FeedAdView.this.setVisibility(View.VISIBLE);
           onAdLayout((int) width, (int) height);
         }
       }
     );
-    // dislike设置
     bindDislike(ad, true);
     if (ad.getInteractionType() != TTAdConstant.INTERACTION_TYPE_DOWNLOAD) {
       return;

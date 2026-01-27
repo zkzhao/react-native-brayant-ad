@@ -38,6 +38,8 @@ public class BannerAdView extends RelativeLayout {
     inflate(context, R.layout.feed_view, this);
     Utils.setupLayoutHack(this);
 
+    setVisibility(View.INVISIBLE);
+
     RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
       RelativeLayout.LayoutParams.MATCH_PARENT,
       mExpectedHeight
@@ -73,7 +75,7 @@ public class BannerAdView extends RelativeLayout {
    */
   public void setVisibility(boolean visible) {
     if (visible) {
-      super.setVisibility(View.VISIBLE);
+      // 触发加载，但暂不显示（等待渲染成功）
       showAd();
     } else {
       super.setVisibility(View.INVISIBLE);

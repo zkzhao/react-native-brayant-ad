@@ -50,11 +50,11 @@ public class DrawFeedView extends RelativeLayout {
     reactContext = context;
     mContext = context;
 
-    // 初始化广告渲染组件
     inflate(mContext, R.layout.draw_video, this);
     mContainer = findViewById(R.id.tt_video_layout_hxb);
 
-    // 这个函数很关键，不然不能触发再次渲染，让 view 在 RN 里渲染成功!!
+    setVisibility(View.INVISIBLE);
+
     Utils.setupLayoutHack(this);
   }
 
@@ -214,6 +214,7 @@ public class DrawFeedView extends RelativeLayout {
         public void onRenderSuccess(View view, float width, float height) {
           Log.d(TAG, "express onRenderSuccess");
           mContainer.addView(ad.getExpressAdView());
+          DrawFeedView.this.setVisibility(View.VISIBLE);
           onExpressAdLoad();
         }
       }
@@ -301,6 +302,8 @@ public class DrawFeedView extends RelativeLayout {
             View view = ad.getAdView();
             mContainer.addView(view);
 
+            DrawFeedView.this.setVisibility(View.VISIBLE);
+
             // 广告替换用户头像
             String headicon = "";
             if (ad.getIcon() != null && ad.getIcon().getImageUrl() != null) {
@@ -308,7 +311,6 @@ public class DrawFeedView extends RelativeLayout {
             }
             onNativeAdLoad(headicon);
 
-            // 点击标题，下载按钮+事件
             initAdViewAndAction(ad, mContainer);
           }
         }
