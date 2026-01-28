@@ -2,6 +2,7 @@ package com.brayantad;
 
 import androidx.annotation.NonNull;
 
+import com.brayantad.dy.banner.BannerAdModule;
 import com.brayantad.dy.banner.BannerAdViewManager;
 import com.brayantad.dy.drawFeed.DrawFeedViewManager;
 import com.brayantad.dy.drawFeed.DrawFeedViewModule;
@@ -29,6 +30,7 @@ public class BrayantAdPackage implements ReactPackage {
     modules.add(new RewardVideoModule(reactContext));
     modules.add(new FullScreenVideoModule(reactContext));
     modules.add(new DrawFeedViewModule(reactContext));
+    modules.add(new BannerAdModule(reactContext));
     return modules;
   }
 

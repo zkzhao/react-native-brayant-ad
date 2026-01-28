@@ -1,5 +1,10 @@
 import { NativeModules, Platform } from 'react-native';
-import { init, loadFeedAd, requestPermission } from './dy/api/AdManager';
+import {
+  init,
+  loadFeedAd,
+  preloadFeedAd,
+  requestPermission,
+} from './dy/api/AdManager';
 import startRewardVideo from './dy/api/RewardVideo';
 import {
   dyLoadSplashAd,
@@ -35,6 +40,7 @@ export function multiply(a: number, b: number): Promise<number> {
 export {
   init,
   loadFeedAd,
+  preloadFeedAd,
   requestPermission,
   loadDrawFeedAd,
   startRewardVideo,

@@ -25,6 +25,19 @@ const loadFeedAd = (info: feedInfo) => {
   return AdManager.loadFeedAd(info);
 };
 
+/**
+ * 预加载信息流广告（FeedAd）- Android 专用
+ * 在组件渲染前调用，提前加载广告数据，减少白屏时间
+ * @param info - 广告配置信息
+ * @returns Promise<void>
+ */
+const preloadFeedAd = (info: feedInfo): Promise<void> => {
+  if (Platform.OS === 'android') {
+    return AdManager.preloadFeedAd(info);
+  }
+  return Promise.resolve();
+};
+
 const loadDrawFeedAd = (info: feedInfo) => {
   //提前加载视频刷信息流DrawFeedAd, 无返回，暂时只写完android
   if (Platform.OS === 'android') {
@@ -36,4 +49,4 @@ const loadDrawFeedAd = (info: feedInfo) => {
 const requestPermission = () => {
   AdManager.requestPermission();
 };
-export { init, loadFeedAd, loadDrawFeedAd, requestPermission };
+export { init, loadFeedAd, preloadFeedAd, loadDrawFeedAd, requestPermission };

@@ -9,6 +9,7 @@ import android.widget.RelativeLayout;
 
 import com.brayantad.R;
 import com.brayantad.dy.DyADCore;
+import com.brayantad.dy.banner.BannerAdModule;
 import com.brayantad.utils.Utils;
 import com.bytedance.sdk.openadsdk.AdSlot;
 import com.bytedance.sdk.openadsdk.TTAdDislike;
@@ -109,6 +110,16 @@ public class BannerAdView extends RelativeLayout {
       mBannerAd.destroy();
     }
 
+    // 先检查是否有预加载的缓存广告
+    TTNativeExpressAd cachedAd = BannerAdModule.getCachedBannerAd(mCodeId);
+    if (cachedAd != null) {
+      mBannerAd = cachedAd;
+      showBannerAd(mBannerAd);
+      mIsAdLoading = false;
+      return;
+    }
+
+    // 没有缓存，正常加载
     // 创建广告请求参数AdSlot
     mAdSlot =
       new AdSlot.Builder()

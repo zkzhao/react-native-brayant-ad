@@ -123,6 +123,74 @@ public class AdManager extends ReactContextBaseJavaModule {
   }
 
   /**
+   * 预加载信息流广告（FeedAd）
+   * 在组件渲染前调用，提前加载广告数据，减少白屏时间
+   * 与 loadFeedAd 的区别：此方法不依赖 Promise 回调，静默预加载
+   */
+  @ReactMethod
+  public void preloadFeedAd(ReadableMap options, final Promise promise) {
+    String codeId = options.getString("codeid");
+    if (codeId == null || codeId.isEmpty()) {
+      promise.reject(TAG, "codeid is required");
+      return;
+    }
+
+    float width = 0;
+    if (options.hasKey("adWidth")) {
+      width = Float.parseFloat(Objects.requireNonNull(options.getString("adWidth")));
+    }
+
+    // 检查 SDK 是否初始化
+    if (DyADCore.TTAdSdk == null) {
+      promise.reject(TAG, "TTAdSdk not initialized");
+      return;
+    }
+
+    // 如果已经有缓存的广告，直接返回成功
+    if (DyADCore.feedAd != null) {
+      promise.resolve(true);
+      return;
+    }
+
+    // 创建广告请求参数
+    float expressViewWidth = width > 0 ? width : 280;
+    float expressViewHeight = 0; // 自动高度
+
+    AdSlot adSlot = new AdSlot.Builder()
+      .setCodeId(codeId)
+      .setSupportDeepLink(true)
+      .setAdCount(1)
+      .setExpressViewAcceptedSize(expressViewWidth, expressViewHeight)
+      .setImageAcceptedSize(640, 320)
+      .setNativeAdType(AdSlot.TYPE_INTERACTION_AD)
+      .build();
+
+    // 请求广告
+    DyADCore.TTAdSdk.loadNativeExpressAd(
+      adSlot,
+      new TTAdNative.NativeExpressAdListener() {
+        @Override
+        public void onError(int code, String message) {
+          Log.d(TAG, "preloadFeedAd error: " + message);
+          promise.reject(TAG, "preload feed ad error: " + message);
+        }
+
+        @Override
+        public void onNativeExpressAdLoad(List<TTNativeExpressAd> ads) {
+          Log.d(TAG, "preloadFeedAd success");
+          if (ads == null || ads.isEmpty()) {
+            promise.reject(TAG, "preload feed ad: no ad content");
+            return;
+          }
+          // 缓存加载成功的广告
+          DyADCore.feedAd = ads.get(0);
+          promise.resolve(true);
+        }
+      }
+    );
+  }
+
+  /**
    * 加载穿山甲的信息流广告
    *
    * @param codeId
