@@ -13,10 +13,27 @@ export interface AD_EVENT_TYPE {
   onAdClose: string; // 广告关闭
   onAdSkip: string; // 用户点击跳过广告监听
   onAdShow: string; // 开屏广告开始展示
+  onPreloadSuccess: string; // 预加载成功
+  onPreloadFail: string; // 预加载失败
 }
+
 export interface SPLASHAD_PROPS_TYPE {
   codeid: string;
   anim?: 'default' | 'none' | 'catalyst' | 'slide' | 'fade';
+}
+
+export interface PRELOAD_OPTIONS_TYPE {
+  codeid: string;
+}
+
+export interface PRELOAD_RESULT_TYPE {
+  success: boolean;
+  message: string;
+}
+
+export interface HAS_PRELOADED_RESULT_TYPE {
+  hasAd: boolean;
+  status: number;
 }
 
 const dyLoadSplashAd = ({ codeid, anim = 'default' }: SPLASHAD_PROPS_TYPE) => {
@@ -51,4 +68,35 @@ const dyLoadSplashAd = ({ codeid, anim = 'default' }: SPLASHAD_PROPS_TYPE) => {
     },
   };
 };
-export { dyLoadSplashAd };
+
+/**
+ * 预加载开屏广告
+ * 在应用启动时调用，提前加载广告，避免展示时出现白屏
+ * @param options 预加载选项
+ * @returns Promise<预加载结果>
+ */
+const preloadSplashAd = async (options: PRELOAD_OPTIONS_TYPE): Promise<PRELOAD_RESULT_TYPE> => {
+  return SplashAd.preloadSplashAd(options);
+};
+
+/**
+ * 检查是否有预加载的广告可用
+ * @returns Promise<检查结果>
+ */
+const hasPreloadedSplashAd = async (): Promise<HAS_PRELOADED_RESULT_TYPE> => {
+  return SplashAd.hasPreloadedAd();
+};
+
+/**
+ * 清除预加载的广告缓存
+ */
+const clearPreloadedSplashAd = (): void => {
+  SplashAd.clearPreloadedAd();
+};
+
+export {
+  dyLoadSplashAd,
+  preloadSplashAd,
+  hasPreloadedSplashAd,
+  clearPreloadedSplashAd,
+};

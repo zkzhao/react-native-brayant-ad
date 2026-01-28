@@ -73,19 +73,25 @@ public class SplashActivity extends AppCompatActivity implements WeakHandler.IHa
     // 在开屏时候申请不太合适，因为该页面倒计时结束或者请求超时会跳转，在该页面申请权限，体验不好
     // TTAdManagerHolder.getInstance(this).requestPermissionIfNecessary(this);
 
-    // 定时，AD_TIME_OUT时间到时执行，如果开屏广告没有加载则跳转到主页面
-    mHandler.sendEmptyMessageDelayed(MSG_GO_MAIN, AD_TIME_OUT);
-
     // 初始化自定义广告 View
     initView();
 
     // 绑定广告控制 Activity
     DyADCore.hookActivity(this);
+
     boolean sdkReady = TTAdSdk.isSdkReady();
-    if (DyADCore.splashAd != null && sdkReady ) {
-      // 直接展示预加载的开屏广告
+    boolean hasPreloadedAd = DyADCore.splashAd != null && sdkReady && isPreloadValid();
+
+    if (hasPreloadedAd) {
+      // 直接展示预加载的开屏广告，无需等待加载
+      Log.d(TAG, "使用预加载的开屏广告，直接展示");
       showSplashAd();
     } else {
+      // 没有预加载或已过期，需要实时加载
+      Log.d(TAG, "没有预加载广告，开始实时加载");
+
+      // 定时，AD_TIME_OUT时间到时执行，如果开屏广告没有加载则跳转到主页面
+      mHandler.sendEmptyMessageDelayed(MSG_GO_MAIN, AD_TIME_OUT);
 
       // 加载并显示开屏广告
       loadSplashAd(
@@ -97,6 +103,15 @@ public class SplashActivity extends AppCompatActivity implements WeakHandler.IHa
         }
       );
     }
+  }
+
+  /**
+   * 检查预加载的广告是否仍然有效（5分钟有效期）
+   */
+  private boolean isPreloadValid() {
+    if (DyADCore.splashPreloadTime == 0) return false;
+    long elapsed = System.currentTimeMillis() - DyADCore.splashPreloadTime;
+    return elapsed < DyADCore.SPLASH_PRELOAD_VALID_DURATION;
   }
 
   // 初始化开屏广告 View

@@ -2,21 +2,35 @@ package com.brayantad.dy.splash;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.brayantad.dy.DyADCore;
 import com.brayantad.dy.splash.activity.SplashActivity;
+import com.bytedance.sdk.openadsdk.AdSlot;
+import com.bytedance.sdk.openadsdk.CSJAdError;
+import com.bytedance.sdk.openadsdk.CSJSplashAd;
+import com.bytedance.sdk.openadsdk.TTAdNative;
+import com.bytedance.sdk.openadsdk.TTAdSdk;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+
+import static com.bytedance.sdk.openadsdk.TTAdLoadType.PRELOAD;
 
 // 开屏广告
 public class SplashAdModule extends ReactContextBaseJavaModule {
 
   String TAG = "SplashAd";
   ReactApplicationContext mContext;
+  // 开屏广告预加载超时时间
+  private static final int PRELOAD_TIME_OUT = 3500;
 
   public SplashAdModule(@NonNull ReactApplicationContext reactContext) {
     super(reactContext);
@@ -27,6 +41,147 @@ public class SplashAdModule extends ReactContextBaseJavaModule {
   @Override
   public String getName() {
     return TAG;
+  }
+
+  /**
+   * 预加载开屏广告
+   * 在应用启动时调用，提前加载广告，避免展示时出现白屏
+   */
+  @ReactMethod
+  public void preloadSplashAd(ReadableMap options, Promise promise) {
+    String codeid = options.hasKey("codeid") ? options.getString("codeid") : null;
+
+    if (codeid == null || codeid.isEmpty()) {
+      promise.reject("INVALID_CODEID", "广告位ID不能为空");
+      return;
+    }
+
+    // 检查是否已有有效预加载
+    if (DyADCore.splashAd != null && isPreloadValid()) {
+      Log.d(TAG, "预加载广告已存在且有效，无需重新加载");
+      DyADCore.splashPreloadStatus = DyADCore.SPLASH_PRELOAD_SUCCESS;
+      WritableMap result = Arguments.createMap();
+      result.putBoolean("success", true);
+      result.putString("message", "使用已预加载的广告");
+      promise.resolve(result);
+      return;
+    }
+
+    // 检查SDK是否初始化
+    if (DyADCore.TTAdSdk == null || !TTAdSdk.isSdkReady()) {
+      promise.reject("SDK_NOT_READY", "广告SDK未初始化");
+      return;
+    }
+
+    // 设置预加载状态为加载中
+    DyADCore.splashPreloadStatus = DyADCore.SPLASH_PRELOAD_LOADING;
+
+    TTAdNative mTTAdNative = DyADCore.TTAdSdk;
+
+    // 创建开屏广告请求参数
+    AdSlot adSlot = new AdSlot.Builder()
+      .setCodeId(codeid)
+      .setSupportDeepLink(true)
+      .setExpressViewAcceptedSize(1080, 1920)
+      .setAdLoadType(PRELOAD)
+      .build();
+
+    // 请求广告
+    mTTAdNative.loadSplashAd(
+      adSlot,
+      new TTAdNative.CSJSplashAdListener() {
+        @Override
+        public void onSplashLoadSuccess(CSJSplashAd csjSplashAd) {
+          // 素材加载成功
+        }
+
+        @Override
+        public void onSplashLoadFail(CSJAdError csjAdError) {
+          Log.d(TAG, "预加载开屏广告失败:" + csjAdError);
+          DyADCore.splashPreloadStatus = DyADCore.SPLASH_PRELOAD_FAIL;
+          DyADCore.splashAd = null;
+
+          // 发送预加载失败事件
+          WritableMap eventParams = Arguments.createMap();
+          eventParams.putString("error", csjAdError != null ? csjAdError.getMsg() : "未知错误");
+          sendEvent("SplashAd-onPreloadFail", eventParams);
+
+          promise.reject("PRELOAD_FAIL", csjAdError != null ? csjAdError.getMsg() : "预加载失败");
+        }
+
+        @Override
+        public void onSplashRenderSuccess(CSJSplashAd csjSplashAd) {
+          Log.d(TAG, "预加载开屏广告成功");
+          DyADCore.splashAd = csjSplashAd;
+          DyADCore.splashPreloadStatus = DyADCore.SPLASH_PRELOAD_SUCCESS;
+          DyADCore.splashPreloadTime = System.currentTimeMillis();
+
+          // 发送预加载成功事件
+          WritableMap eventParams = Arguments.createMap();
+          eventParams.putBoolean("success", true);
+          sendEvent("SplashAd-onPreloadSuccess", eventParams);
+
+          WritableMap result = Arguments.createMap();
+          result.putBoolean("success", true);
+          result.putString("message", "预加载成功");
+          promise.resolve(result);
+        }
+
+        @Override
+        public void onSplashRenderFail(CSJSplashAd csjSplashAd, CSJAdError csjAdError) {
+          Log.d(TAG, "预加载开屏广告渲染失败:" + csjAdError);
+          DyADCore.splashPreloadStatus = DyADCore.SPLASH_PRELOAD_FAIL;
+          DyADCore.splashAd = null;
+
+          // 发送预加载失败事件
+          WritableMap eventParams = Arguments.createMap();
+          eventParams.putString("error", csjAdError != null ? csjAdError.getMsg() : "渲染失败");
+          sendEvent("SplashAd-onPreloadFail", eventParams);
+
+          promise.reject("RENDER_FAIL", csjAdError != null ? csjAdError.getMsg() : "渲染失败");
+        }
+      },
+      PRELOAD_TIME_OUT
+    );
+  }
+
+  /**
+   * 检查预加载的广告是否仍然有效（5分钟有效期）
+   */
+  private boolean isPreloadValid() {
+    if (DyADCore.splashPreloadTime == 0) return false;
+    long elapsed = System.currentTimeMillis() - DyADCore.splashPreloadTime;
+    return elapsed < DyADCore.SPLASH_PRELOAD_VALID_DURATION;
+  }
+
+  /**
+   * 检查是否有预加载的广告可用
+   */
+  @ReactMethod
+  public void hasPreloadedAd(Promise promise) {
+    boolean hasAd = DyADCore.splashAd != null && isPreloadValid();
+    WritableMap result = Arguments.createMap();
+    result.putBoolean("hasAd", hasAd);
+    result.putInt("status", DyADCore.splashPreloadStatus);
+    promise.resolve(result);
+  }
+
+  /**
+   * 清除预加载的广告缓存
+   */
+  @ReactMethod
+  public void clearPreloadedAd() {
+    DyADCore.splashAd = null;
+    DyADCore.splashPreloadStatus = DyADCore.SPLASH_PRELOAD_IDLE;
+    DyADCore.splashPreloadTime = 0;
+  }
+
+  private void sendEvent(String eventName, WritableMap params) {
+    if (mContext != null && mContext.hasActiveCatalystInstance()) {
+      mContext
+        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+        .emit(eventName, params);
+    }
   }
 
   @ReactMethod

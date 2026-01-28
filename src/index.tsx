@@ -1,7 +1,12 @@
 import { NativeModules, Platform } from 'react-native';
 import { init, loadFeedAd, requestPermission } from './dy/api/AdManager';
 import startRewardVideo from './dy/api/RewardVideo';
-import { dyLoadSplashAd } from './dy/api/SplashAd';
+import {
+  dyLoadSplashAd,
+  preloadSplashAd,
+  hasPreloadedSplashAd,
+  clearPreloadedSplashAd,
+} from './dy/api/SplashAd';
 import { DrawFeedView, loadDrawFeedAd } from './dy/component/DrawFeedAd';
 import FeedAdView from './dy/component/FeedAd';
 import BannerAdView from './dy/component/BannerAd';
@@ -35,6 +40,9 @@ export {
   startRewardVideo,
   startFullScreenVideo,
   dyLoadSplashAd,
+  preloadSplashAd,
+  hasPreloadedSplashAd,
+  clearPreloadedSplashAd,
   DrawFeedView,
   FeedAdView,
   BannerAdView,

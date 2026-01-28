@@ -5,14 +5,16 @@ import {
   startRewardVideo,
   requestPermission,
   dyLoadSplashAd,
+  preloadSplashAd,
+  hasPreloadedSplashAd,
   startFullScreenVideo,
-  FeedAdView,
   BannerAdView,
 } from 'react-native-brayant-ad';
 
 export default function App() {
-  const [showFeedView, setShowFeedView] = useState(false);
   const [showBannerView, setShowBannerView] = useState(false);
+  const [preloaded, setPreloaded] = useState(false);
+
   useEffect(() => {
     init({
       appid: '****',
@@ -20,16 +22,44 @@ export default function App() {
     })
       .then((res) => {
         console.log(res);
-        setShowFeedView(true);
         setShowBannerView(true);
         requestPermission();
+        // SDK初始化完成后预加载开屏广告
+        preloadSplashAdExample();
       })
       .catch((e) => {
         console.log(e);
       });
   }, []);
-  // 开屏广告
-  const onOpenScren = () => {
+
+  // 预加载开屏广告示例
+  const preloadSplashAdExample = async () => {
+    try {
+      // 在应用启动时预加载开屏广告，避免展示时出现白屏
+      const result = await preloadSplashAd({ codeid: '****' });
+      console.log('预加载开屏广告成功:', result);
+      setPreloaded(true);
+    } catch (error) {
+      console.log('预加载开屏广告失败:', error);
+    }
+  };
+
+  // 检查预加载状态
+  const checkPreloadStatus = async () => {
+    const status = await hasPreloadedSplashAd();
+    console.log('预加载状态:', status);
+    setPreloaded(status.hasAd);
+  };
+
+  // 开屏广告（已预加载版本）
+  const onOpenScren = async () => {
+    // 检查是否有预加载的广告
+    const status = await hasPreloadedSplashAd();
+    if (!status.hasAd) {
+      console.log('没有预加载的广告，先进行预加载...');
+      await preloadSplashAdExample();
+    }
+
     const splashAd = dyLoadSplashAd({
       codeid: '****',
       anim: 'default',
@@ -100,7 +130,7 @@ export default function App() {
       {/*/>*/}
       <TouchableOpacity
         style={{
-          marginVertical: 20,
+          marginVertical: 10,
           paddingHorizontal: 30,
           paddingVertical: 15,
           backgroundColor: '#F96',
@@ -108,7 +138,19 @@ export default function App() {
         }}
         onPress={onOpenScren}
       >
-        <Text style={{ textAlign: 'center' }}> 开屏</Text>
+        <Text style={{ textAlign: 'center' }}> 开屏广告{preloaded ? '(已预加载)' : '(未预加载)'}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{
+          marginVertical: 10,
+          paddingHorizontal: 30,
+          paddingVertical: 15,
+          backgroundColor: '#69F',
+          borderRadius: 50,
+        }}
+        onPress={checkPreloadStatus}
+      >
+        <Text style={{ textAlign: 'center' }}> 检查预加载状态</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={{

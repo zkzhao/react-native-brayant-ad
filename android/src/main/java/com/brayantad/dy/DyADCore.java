@@ -70,6 +70,15 @@ public class DyADCore {
   public static CSJSplashAd splashAd;
   public static ReactContext reactContext;
 
+  // 开屏广告预加载状态管理
+  public static final int SPLASH_PRELOAD_IDLE = 0;      // 未预加载
+  public static final int SPLASH_PRELOAD_LOADING = 1;   // 预加载中
+  public static final int SPLASH_PRELOAD_SUCCESS = 2;   // 预加载成功
+  public static final int SPLASH_PRELOAD_FAIL = 3;      // 预加载失败
+  public static int splashPreloadStatus = SPLASH_PRELOAD_IDLE;
+  public static long splashPreloadTime = 0;             // 预加载成功时间戳
+  public static final long SPLASH_PRELOAD_VALID_DURATION = 5 * 60 * 1000; // 预加载有效期5分钟
+
   public static void initSdk(Context context, String appId, Boolean debug) {
     if (TTAdSdk != null && Objects.equals(tt_appid, appId)) {
       //已初始化
